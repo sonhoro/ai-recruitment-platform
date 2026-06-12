@@ -38,87 +38,101 @@ function redirectTo(url: string, request: NextRequest): NextResponse {
 }
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const isDevBypass  = process.env.DEV_BYPASS_AUTH === 'true';
+  try {
+    const { pathname } = request.nextUrl;
+    const isDevBypass  = process.env.DEV_BYPASS_AUTH === 'true';
 
-  const roleCookie = request.cookies.get('user_role')?.value as UserRole | undefined;
-
-  // ── Dev bypass: skip user session, enforce role from cookie ──
-  if (isDevBypass) {
-    // Auth routes → redirect to portal if role cookie present
-    if (AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
-      if (roleCookie && REDIRECT_MAP[roleCookie]) {
-        return redirectTo(REDIRECT_MAP[roleCookie], request);
-      }
-      return NextResponse.next();
+    // Debug endpoint to check env vars
+    if (pathname === '/api/debug-env') {
+      return NextResponse.json({
+        DEV_BYPASS_AUTH: process.env.DEV_BYPASS_AUTH,
+        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓ set' : '✗ missing',
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✓ set' : '✗ missing',
+        SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ set' : '✗ missing',
+        N8N_WEBHOOK_URL: process.env.N8N_WEBHOOK_URL ? '✓ set' : '✗ missing',
+        N8N_CALLBACK_SECRET: process.env.N8N_CALLBACK_SECRET ? '✓ set' : '✗ missing',
+      });
     }
 
-    // Protected routes → check role cookie
-    for (const [prefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
-      if (pathname.startsWith(prefix)) {
-        if (roleCookie && allowedRoles.includes(roleCookie)) {
-          return NextResponse.next();
+    const roleCookie = request.cookies.get('user_role')?.value as UserRole | undefined;
+
+    // ── Dev bypass: skip user session, enforce role from cookie ──
+    if (isDevBypass) {
+      if (AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
+        if (roleCookie && REDIRECT_MAP[roleCookie]) {
+          return redirectTo(REDIRECT_MAP[roleCookie], request);
         }
-        // Wrong/no role → redirect to login
-        return redirectTo('/login', request);
+        return NextResponse.next();
       }
-    }
 
-    return NextResponse.next();
-  }
-
-  // ── Production: full session + role check ─────────────────
-  const response = await updateSession(request);
-
-  const supabase = createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return request.cookies.getAll(); },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
-    },
-  );
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Protected routes → unauthenticated redirect
-  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
-    pathname.startsWith(prefix),
-  );
-  if (isProtected && !user) {
-    return redirectTo('/login', request);
-  }
-
-  // Role-based route access
-  if (user) {
-    for (const [prefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
-      if (pathname.startsWith(prefix)) {
-        if (!roleCookie || !allowedRoles.includes(roleCookie)) {
-          if (roleCookie && REDIRECT_MAP[roleCookie]) {
-            return redirectTo(REDIRECT_MAP[roleCookie], request);
+      for (const [prefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+        if (pathname.startsWith(prefix)) {
+          if (roleCookie && allowedRoles.includes(roleCookie)) {
+            return NextResponse.next();
           }
           return redirectTo('/login', request);
         }
-        break;
+      }
+
+      return NextResponse.next();
+    }
+
+    // ── Production: full session + role check ─────────────────
+    const response = await updateSession(request);
+
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll(); },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options),
+            );
+          },
+        },
+      },
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const isProtected = PROTECTED_PREFIXES.some((prefix) =>
+      pathname.startsWith(prefix),
+    );
+    if (isProtected && !user) {
+      return redirectTo('/login', request);
+    }
+
+    if (user) {
+      for (const [prefix, allowedRoles] of Object.entries(ROLE_ROUTES)) {
+        if (pathname.startsWith(prefix)) {
+          if (!roleCookie || !allowedRoles.includes(roleCookie)) {
+            if (roleCookie && REDIRECT_MAP[roleCookie]) {
+              return redirectTo(REDIRECT_MAP[roleCookie], request);
+            }
+            return redirectTo('/login', request);
+          }
+          break;
+        }
       }
     }
-  }
 
-  // Auth routes → redirect authenticated users to role portal
-  if (AUTH_ROUTES.some((r) => pathname.startsWith(r)) && user) {
-    const target = roleCookie && REDIRECT_MAP[roleCookie]
-      ? REDIRECT_MAP[roleCookie]
-      : '/dashboard/jobs';
-    return redirectTo(target, request);
-  }
+    if (AUTH_ROUTES.some((r) => pathname.startsWith(r)) && user) {
+      const target = roleCookie && REDIRECT_MAP[roleCookie]
+        ? REDIRECT_MAP[roleCookie]
+        : '/dashboard/jobs';
+      return redirectTo(target, request);
+    }
 
-  return response;
+    return response;
+  } catch (err) {
+    console.error('[proxy] Middleware error:', err);
+    return NextResponse.json(
+      { error: 'Middleware error', message: err instanceof Error ? err.message : String(err) },
+      { status: 500 },
+    );
+  }
 }
 
 export const config = {
