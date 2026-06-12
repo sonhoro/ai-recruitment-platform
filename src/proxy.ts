@@ -1,7 +1,7 @@
 /**
- * src/middleware.ts
+ * src/proxy.ts
  *
- * Next.js Edge Middleware — session refresh + role-based route protection.
+ * Next.js Edge Middleware (Proxy convention) — session refresh + role-based route protection.
  *
  * Roles:
  *   recruiter    → /dashboard/*
@@ -42,16 +42,47 @@ export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const isDevBypass  = process.env.DEV_BYPASS_AUTH === 'true';
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!isDevBypass) {
+      if (!supabaseUrl || !supabaseAnonKey) {
+        return NextResponse.json(
+          {
+            error: 'Configuration error',
+            message: `Missing Supabase environment variables: ${
+              !supabaseUrl && !supabaseAnonKey
+                ? 'NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY'
+                : !supabaseUrl
+                  ? 'NEXT_PUBLIC_SUPABASE_URL'
+                  : 'NEXT_PUBLIC_SUPABASE_ANON_KEY'
+            }`,
+          },
+          { status: 500 },
+        );
+      }
+
+      try {
+        new URL(supabaseUrl);
+      } catch {
+        return NextResponse.json(
+          {
+            error: 'Configuration error',
+            message: `NEXT_PUBLIC_SUPABASE_URL is not a valid URL: "${supabaseUrl}"`,
+          },
+          { status: 500 },
+        );
+      }
+    }
+
     // Debug endpoint to check env vars
     if (pathname === '/api/debug-env') {
-      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-      const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       return NextResponse.json({
         DEV_BYPASS_AUTH: process.env.DEV_BYPASS_AUTH,
-        NEXT_PUBLIC_SUPABASE_URL: url ? url : '✗ missing',
-        NEXT_PUBLIC_SUPABASE_URL_LENGTH: url ? url.length : 0,
-        NEXT_PUBLIC_SUPABASE_URL_CHARS: url ? [...url].map(c => c.charCodeAt(0)).join(',') : [],
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: anon ? anon.substring(0, 20) + '...' : '✗ missing',
+        NEXT_PUBLIC_SUPABASE_URL: supabaseUrl ? supabaseUrl : '✗ missing',
+        NEXT_PUBLIC_SUPABASE_URL_LENGTH: supabaseUrl ? supabaseUrl.length : 0,
+        NEXT_PUBLIC_SUPABASE_URL_CHARS: supabaseUrl ? [...supabaseUrl].map(c => c.charCodeAt(0)).join(',') : [],
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : '✗ missing',
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ set' : '✗ missing',
         N8N_WEBHOOK_URL: process.env.N8N_WEBHOOK_URL ? '✓ set' : '✗ missing',
         N8N_CALLBACK_SECRET: process.env.N8N_CALLBACK_SECRET ? '✓ set' : '✗ missing',
@@ -85,8 +116,8 @@ export async function proxy(request: NextRequest) {
     const response = await updateSession(request);
 
     const supabase = createServerClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      supabaseUrl!,
+      supabaseAnonKey!,
       {
         cookies: {
           getAll() { return request.cookies.getAll(); },
@@ -131,9 +162,16 @@ export async function proxy(request: NextRequest) {
 
     return response;
   } catch (err) {
-    console.error('[proxy] Middleware error:', err);
+    console.error('[proxy] Error:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    const url = request?.url ?? 'unknown';
     return NextResponse.json(
-      { error: 'Middleware error', message: err instanceof Error ? err.message : String(err) },
+      {
+        error: 'Middleware error',
+        message,
+        url,
+        type: err instanceof Error ? err.constructor.name : typeof err,
+      },
       { status: 500 },
     );
   }
