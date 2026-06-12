@@ -9,8 +9,9 @@ import type { Database } from '@/types/database.types';
 export type UserRole = 'recruiter' | 'interviewer' | 'candidate';
 
 export interface SignInResult {
-  success: false;
-  error: string;
+  success: boolean;
+  error?: string;
+  redirect?: string;
 }
 
 /**
@@ -132,9 +133,8 @@ export async function signIn(
     });
 
     revalidatePath('/');
-    if (role === 'interviewer') redirect('/interviewer');
-    if (role === 'candidate') redirect('/candidate');
-    redirect('/dashboard/jobs');
+    const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
+    return { success: true, redirect: redirectUrl };
   }
 
   const supabase = await createServerClient();
@@ -183,9 +183,8 @@ export async function signIn(
 
   revalidatePath('/');
 
-  if (role === 'interviewer') redirect('/interviewer');
-  if (role === 'candidate') redirect('/candidate');
-  redirect('/dashboard/jobs');
+  const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
+  return { success: true, redirect: redirectUrl };
 }
 
 // ─────────────────────────────────────────────────────────────

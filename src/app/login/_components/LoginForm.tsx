@@ -35,14 +35,11 @@ export default function LoginForm() {
     const formData = new FormData(e.currentTarget);
 
     startTransition(async () => {
-      try {
-        const result = await signIn(formData);
-        // signIn redirects on success — only reaches here on error
-        if (result && !result.success) {
-          setError(result.error);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error inesperado al iniciar sesión');
+      const result = await signIn(formData);
+      if (result && !result.success) {
+        setError(result.error);
+      } else if (result?.redirect) {
+        window.location.href = result.redirect;
       }
     });
   }
