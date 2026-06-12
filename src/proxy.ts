@@ -75,20 +75,6 @@ export async function proxy(request: NextRequest) {
       }
     }
 
-    // Debug endpoint to check env vars
-    if (pathname === '/api/debug-env') {
-      return NextResponse.json({
-        DEV_BYPASS_AUTH: process.env.DEV_BYPASS_AUTH,
-        NEXT_PUBLIC_SUPABASE_URL: supabaseUrl ? supabaseUrl : '✗ missing',
-        NEXT_PUBLIC_SUPABASE_URL_LENGTH: supabaseUrl ? supabaseUrl.length : 0,
-        NEXT_PUBLIC_SUPABASE_URL_CHARS: supabaseUrl ? [...supabaseUrl].map(c => c.charCodeAt(0)).join(',') : [],
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: supabaseAnonKey ? supabaseAnonKey.substring(0, 20) + '...' : '✗ missing',
-        SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ set' : '✗ missing',
-        N8N_WEBHOOK_URL: process.env.N8N_WEBHOOK_URL ? '✓ set' : '✗ missing',
-        N8N_CALLBACK_SECRET: process.env.N8N_CALLBACK_SECRET ? '✓ set' : '✗ missing',
-      });
-    }
-
     const roleCookie = request.cookies.get('user_role')?.value as UserRole | undefined;
 
     // ── Dev bypass: skip user session, enforce role from cookie ──
