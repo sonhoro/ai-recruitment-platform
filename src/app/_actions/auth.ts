@@ -186,8 +186,8 @@ export async function candidateRegister(
   });
 
   if (error) {
-    console.error('[auth] candidateRegister error:', error.message);
-    return { success: false, error: 'Error al crear la cuenta. Intenta de nuevo.' };
+    console.error('[auth] candidateRegister error:', JSON.stringify({ message: error.message, status: error.status, name: error.name }));
+    return { success: false, error: `Error: ${error.message}` };
   }
 
   if (!data.user) {
