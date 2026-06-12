@@ -14,7 +14,7 @@ export interface SignInResult {
 }
 
 /**
- * Look up the platform role for a given auth user ID.
+ * Look up the platform platform role for a given auth user ID.
  * Checks user_metadata first (set during registration),
  * then recruiters table (recruiter | interviewer),
  * then candidates table (candidate).
@@ -30,7 +30,7 @@ export async function getUserRole(authUserId: string): Promise<UserRole | null> 
       return metadataRole;
     }
   } catch {
-    // Admin client may fail (e.g. missing service role key) — fall through
+    // Admin client may fail — fall through
   }
 
   // 2. Check recruiters table (recruiter | interviewer)
@@ -56,18 +56,33 @@ export async function getUserRole(authUserId: string): Promise<UserRole | null> 
 }
 
 /**
+ * Check the user_role cookie for a cached role.
+ * Used as a fast fallback before heavier lookups.
+ */
+function getCookieRole(): Promise<UserRole | null> {
+  return cookies().then(c => {
+    const role = c.get('user_role')?.value as UserRole | undefined;
+    if (role === 'recruiter' || role === 'interviewer' || role === 'candidate') return role;
+    return null;
+  });
+}
+
+/**
  * Get current user context from Supabase session or dev bypass cookies.
  * Returns { email, role } on success, null if not found.
  */
 export async function getCurrentUserContext(): Promise<{ email: string; role: UserRole } | null> {
+  // 1. Fast path from cookies (set during registration / sign-in)
+  const c = await cookies();
+  const cookieEmail = c.get('user_email')?.value;
+  const cookieRole  = c.get('user_role')?.value as UserRole | undefined;
+  if (cookieEmail && cookieRole) return { email: cookieEmail, role: cookieRole };
+
   if (process.env.DEV_BYPASS_AUTH === 'true') {
-    const c = await cookies();
-    const email = c.get('user_email')?.value;
-    const role  = c.get('user_role')?.value as UserRole | undefined;
-    if (email && role) return { email, role };
     return null;
   }
 
+  // 2. Supabase session
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return null;
@@ -158,6 +173,13 @@ export async function signIn(
     maxAge: 60 * 60 * 8,
     path: '/',
   });
+  cookieStore.set('user_email', email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 8,
+    path: '/',
+  });
 
   revalidatePath('/');
 
@@ -219,9 +241,20 @@ export async function candidateRegister(
     console.error('[auth] candidate link error:', updateError.message);
   }
 
-  // Set role cookie
+  // Sign in so the user has a session immediately
+  const anonClient = await createServerClient();
+  await anonClient.auth.signInWithPassword({ email, password });
+
+  // Set role + email cookies
   const cookieStore = await cookies();
   cookieStore.set('user_role', 'candidate', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 8,
+    path: '/',
+  });
+  cookieStore.set('user_email', email, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
