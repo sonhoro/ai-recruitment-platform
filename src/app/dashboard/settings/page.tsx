@@ -202,6 +202,7 @@ export default function SettingsPage() {
   const n8nWebhookOk = !!n8nWebhookUrl && !n8nWebhookUrl.includes('your')
   const n8nNotifOk = !!n8nNotificationsUrl && !n8nNotificationsUrl.includes('your')
   
+  const maskedOpenAI = maskSecret(openaiKey)
   const maskedGemini = maskSecret(geminiKey)
 
   return (

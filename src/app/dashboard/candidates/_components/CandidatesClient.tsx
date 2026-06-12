@@ -5,7 +5,7 @@ import { Search, Users, ChevronDown } from 'lucide-react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Status = 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected'
+type Status = 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected' | 'withdrawn'
 type Seniority = 'Junior' | 'Semi-Senior' | 'Senior'
 type ScoreTier = 'high' | 'mid' | 'low'
 
@@ -14,9 +14,9 @@ interface Candidate {
   full_name: string
   email: string
   job_title: string
-  seniority: string
+  seniority: Seniority
   score: number
-  status: string
+  status: Status
   skills: string[]
   applied_at: string
 }
@@ -30,6 +30,7 @@ const STATUS_CONFIG: Record<Status, { label: string; className: string }> = {
   offer:     { label: 'Oferta',      className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   hired:     { label: 'Contratado',  className: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
   rejected:  { label: 'Rechazado',   className: 'bg-red-500/15 text-red-300 border-red-500/30' },
+  withdrawn: { label: 'Retirado',    className: 'bg-slate-500/15 text-slate-300 border-slate-500/30' },
 }
 
 const SENIORITY_CONFIG: Record<Seniority, string> = {
