@@ -44,10 +44,14 @@ export async function proxy(request: NextRequest) {
 
     // Debug endpoint to check env vars
     if (pathname === '/api/debug-env') {
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       return NextResponse.json({
         DEV_BYPASS_AUTH: process.env.DEV_BYPASS_AUTH,
-        NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? '✓ set' : '✗ missing',
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✓ set' : '✗ missing',
+        NEXT_PUBLIC_SUPABASE_URL: url ? url : '✗ missing',
+        NEXT_PUBLIC_SUPABASE_URL_LENGTH: url ? url.length : 0,
+        NEXT_PUBLIC_SUPABASE_URL_CHARS: url ? [...url].map(c => c.charCodeAt(0)).join(',') : [],
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: anon ? anon.substring(0, 20) + '...' : '✗ missing',
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY ? '✓ set' : '✗ missing',
         N8N_WEBHOOK_URL: process.env.N8N_WEBHOOK_URL ? '✓ set' : '✗ missing',
         N8N_CALLBACK_SECRET: process.env.N8N_CALLBACK_SECRET ? '✓ set' : '✗ missing',
