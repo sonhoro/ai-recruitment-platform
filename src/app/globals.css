@@ -1,0 +1,83 @@
+/* ── Google Fonts: Inter — must be the FIRST import per CSS spec ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&display=swap');
+
+@import "tailwindcss";
+
+/* ── Tailwind v4 Theme Tokens ─────────────────────────────────── */
+@theme inline {
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Brand violet palette */
+  --color-brand-50:  #f5f3ff;
+  --color-brand-100: #ede9fe;
+  --color-brand-200: #ddd6fe;
+  --color-brand-300: #c4b5fd;
+  --color-brand-400: #a78bfa;
+  --color-brand-500: #8b5cf6;
+  --color-brand-600: #7c3aed;
+  --color-brand-700: #6d28d9;
+  --color-brand-800: #5b21b6;
+  --color-brand-900: #4c1d95;
+
+  /* App background tokens */
+  --color-background: #0a0a0f;
+  --color-surface:    #111118;
+  --color-surface-2:  #1a1a24;
+}
+
+/* ── Base reset ───────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #0a0a0f;
+  color: #f1f1f5;
+  min-height: 100dvh;
+}
+
+/* ── Scrollbar (dark theme) ───────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.35);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.55); }
+
+/* ── Text selection ───────────────────────────────────────────── */
+::selection {
+  background: rgba(124, 58, 237, 0.3);
+  color: #f1f1f5;
+}
+
+/* ── Focus ring ───────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 2px;
+}
+
+/* ── Animate-in utilities (dropdowns / accordions) ────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-6px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.animate-in               { animation-fill-mode: both; }
+.fade-in                  { animation-name: fadeIn;    animation-duration: 150ms; animation-timing-function: ease-out; }
+.slide-in-from-top-1      { animation-name: slideDown; animation-duration: 150ms; animation-timing-function: ease-out; }
+.slide-in-from-top-2      { animation-name: slideDown; animation-duration: 200ms; animation-timing-function: ease-out; }
+.duration-150             { animation-duration: 150ms; }
+.duration-200             { animation-duration: 200ms; }
