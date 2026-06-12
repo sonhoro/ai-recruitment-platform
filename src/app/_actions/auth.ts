@@ -21,12 +21,16 @@ export interface SignInResult {
  */
 export async function getUserRole(authUserId: string): Promise<UserRole | null> {
   // 1. Check role stored in auth user_metadata (set during registration)
-  const admin = createAdminClient();
-  const { data: { user } } = await admin.auth.admin.getUserById(authUserId);
+  try {
+    const admin = createAdminClient();
+    const { data: { user } } = await admin.auth.admin.getUserById(authUserId);
 
-  const metadataRole = user?.user_metadata?.role as string | undefined;
-  if (metadataRole === 'recruiter' || metadataRole === 'interviewer' || metadataRole === 'candidate') {
-    return metadataRole;
+    const metadataRole = user?.user_metadata?.role as string | undefined;
+    if (metadataRole === 'recruiter' || metadataRole === 'interviewer' || metadataRole === 'candidate') {
+      return metadataRole;
+    }
+  } catch {
+    // Admin client may fail (e.g. missing service role key) — fall through
   }
 
   // 2. Check recruiters table (recruiter | interviewer)
