@@ -15,12 +15,22 @@ export interface SignInResult {
 
 /**
  * Look up the platform role for a given auth user ID.
- * Checks recruiters table first (recruiter | interviewer),
+ * Checks user_metadata first (set during registration),
+ * then recruiters table (recruiter | interviewer),
  * then candidates table (candidate).
  */
 export async function getUserRole(authUserId: string): Promise<UserRole | null> {
-  const supabase = await createServerClient();
+  // 1. Check role stored in auth user_metadata (set during registration)
+  const admin = createAdminClient();
+  const { data: { user } } = await admin.auth.admin.getUserById(authUserId);
 
+  const metadataRole = user?.user_metadata?.role as string | undefined;
+  if (metadataRole === 'recruiter' || metadataRole === 'interviewer' || metadataRole === 'candidate') {
+    return metadataRole;
+  }
+
+  // 2. Check recruiters table (recruiter | interviewer)
+  const supabase = await createServerClient();
   const { data: recruiter } = await supabase
     .from('recruiters')
     .select('role')
@@ -29,6 +39,7 @@ export async function getUserRole(authUserId: string): Promise<UserRole | null> 
 
   if (recruiter) return recruiter.role as UserRole;
 
+  // 3. Check candidates table
   const { data: candidate } = await supabase
     .from('candidates')
     .select('id')
@@ -182,7 +193,7 @@ export async function candidateRegister(
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name: fullName },
+    user_metadata: { full_name: fullName, role: 'candidate' },
   });
 
   if (error) {
@@ -194,7 +205,7 @@ export async function candidateRegister(
     return { success: false, error: 'Error al crear el usuario.' };
   }
 
-  // Link to candidate record (match by email)
+  // Link to candidate record if one exists with this email (e.g. from seed data)
   const { error: updateError } = await admin
     .from('candidates')
     .update({ auth_user_id: data.user.id })
