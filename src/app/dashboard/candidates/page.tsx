@@ -20,9 +20,10 @@ export default async function CandidatesPage() {
   const { data: candidates } = await supabase
     .from('candidates')
     .select(`
-      id, full_name, email, status, seniority, applied_at, location,
+      id, job_id, full_name, email, status, seniority, applied_at, location,
       jobs ( title )
     `)
+    .not('job_id', 'is', null)
     .order('applied_at', { ascending: false })
 
   const candidateIds = (candidates ?? []).map((c) => c.id)
@@ -37,14 +38,21 @@ export default async function CandidatesPage() {
 
   const scoreMap = new Map((scores ?? []).map((s) => [s.candidate_id, s.score]))
 
-  const enriched = (candidates ?? []).map((c: any) => ({
+  const validCandidates = (candidates ?? []).filter((c: any) => {
+    if (!c.job_id) return false;
+    if (!c.jobs) return false;
+    if (!c.jobs[0]?.title) return false;
+    return true;
+  });
+
+  const enriched = validCandidates.map((c: any) => ({
     id: c.id,
     full_name: c.full_name,
     email: c.email,
     status: c.status,
     seniority: c.seniority ?? 'Semi-Senior',
     applied_at: c.applied_at,
-    job_title: c.jobs?.[0]?.title ?? '',
+    job_title: c.jobs[0].title,
     score: scoreMap.get(c.id) ?? 0,
     skills: [] as string[],
   }))
