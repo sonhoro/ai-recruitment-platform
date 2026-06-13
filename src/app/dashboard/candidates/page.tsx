@@ -38,21 +38,14 @@ export default async function CandidatesPage() {
 
   const scoreMap = new Map((scores ?? []).map((s) => [s.candidate_id, s.score]))
 
-  const validCandidates = (candidates ?? []).filter((c: any) => {
-    if (!c.job_id) return false;
-    if (!c.jobs) return false;
-    if (!c.jobs[0]?.title) return false;
-    return true;
-  });
-
-  const enriched = validCandidates.map((c: any) => ({
+  const enriched = (candidates ?? []).map((c: any) => ({
     id: c.id,
     full_name: c.full_name,
     email: c.email,
     status: c.status,
     seniority: c.seniority ?? 'Semi-Senior',
     applied_at: c.applied_at,
-    job_title: c.jobs[0].title,
+    job_title: c.jobs?.title ?? '',
     score: scoreMap.get(c.id) ?? 0,
     skills: [] as string[],
   }))
