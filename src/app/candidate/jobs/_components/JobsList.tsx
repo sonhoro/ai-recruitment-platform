@@ -96,18 +96,10 @@ export default function JobsList({ jobs, mainResumeUrl, appliedJobIds }: JobsLis
             )}
 
             {appliedJobIds.has(job.id) ? (
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30">
-                  <CheckCircleIcon className="w-3 h-3" />
-                  Ya postulaste
-                </span>
-                <button
-                  onClick={() => setApplyJob({ id: job.id, title: job.title })}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors"
-                >
-                  Actualizar CV
-                </button>
-              </div>
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30">
+                <CheckCircleIcon className="w-3 h-3" />
+                Ya postulaste
+              </span>
             ) : (
               <button
                 onClick={() => setApplyJob({ id: job.id, title: job.title })}
