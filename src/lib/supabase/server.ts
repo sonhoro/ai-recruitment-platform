@@ -9,16 +9,14 @@
  *  2. `createAdminClient()`   — service role key, bypasses RLS. For webhooks,
  *     background jobs, and admin-only routes. NEVER expose to the browser.
  *
- * Both clients use `createClient<Database>` from `@supabase/supabase-js` directly
- * so TypeScript can fully resolve the Database generic and `.from()` returns the
- * correct typed builder instead of `never`.
- *
- * Cookie handling for session auth is wired manually via the `global.fetch`
- * interceptor pattern — compatible with Next.js 15 App Router.
+ * The regular client uses `@supabase/ssr`'s `createServerClient` so that
+ * auth operations (signIn, signOut, refresh) properly set session cookies
+ * in the response, and the middleware can detect the logged-in user.
  */
 
-import { cookies }      from 'next/headers';
+import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
+import { createServerClient as createSsrServerClient } from '@supabase/ssr';
 import type { Database } from '@/types/database.types';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -35,8 +33,8 @@ const SUPABASE_SRK  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? 'placeholder-serv
 
 /**
  * Creates a typed Supabase client with the anon key.
- * Reads the auth token from the Next.js cookie store so
- * Supabase Auth can resolve the logged-in user server-side.
+ * Uses `@supabase/ssr` to automatically read session cookies from the request
+ * and write them back on auth operations (signIn / signOut / refresh).
  *
  * @example
  * const supabase = await createServerClient();
@@ -46,20 +44,15 @@ const SUPABASE_SRK  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? 'placeholder-serv
 export async function createServerClient() {
   const cookieStore = await cookies();
 
-  // Build a cookie-string header that supabase-js sends on every request
-  // so the PostgREST RLS context sees the correct JWT.
-  const cookieHeader = cookieStore
-    .getAll()
-    .map(({ name, value }) => `${name}=${value}`)
-    .join('; ');
-
-  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
-    auth: {
-      persistSession: false,
-    },
-    global: {
-      headers: {
-        Cookie: cookieHeader,
+  return createSsrServerClient<Database>(SUPABASE_URL, SUPABASE_ANON, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) =>
+          cookieStore.set(name, value, options),
+        );
       },
     },
   });
