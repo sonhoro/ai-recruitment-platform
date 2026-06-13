@@ -20,9 +20,16 @@ export default async function CandidateLayout({
 
   if (ctx) {
     displayEmail = ctx.email;
-    displayName = ctx.email.split('@')[0];
 
     const supabase = await createServerClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.user_metadata?.full_name) {
+      displayName = user.user_metadata.full_name as string;
+    } else {
+      displayName = ctx.email.split('@')[0];
+    }
+
     const { data: candidate } = await supabase
       .from('candidates')
       .select('full_name, phone, linkedin_url, portfolio_url, avatar_url')
