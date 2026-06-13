@@ -17,10 +17,10 @@ export async function applyToJob(
   let fullName = ctx.email.split('@')[0];
 
   if (!resumeUrl) {
-    if (process.env.DEV_BYPASS_AUTH === 'true') {
-      const c = await cookies();
-      resumeUrl = c.get('main_resume_url')?.value;
-    } else {
+    const c = await cookies();
+    resumeUrl = c.get('main_resume_url')?.value;
+
+    if (!resumeUrl) {
       const supabase = await createServerClient();
       const { data: { user } } = await supabase.auth.getUser();
       resumeUrl = user?.user_metadata?.main_resume_url as string | undefined;

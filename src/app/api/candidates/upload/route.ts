@@ -106,6 +106,7 @@ function errorResponse(message: string, status: number) {
 export async function POST(request: NextRequest) {
   // ── 1. Authenticate the user ─────────────────────────────
   let authEmail: string | undefined;
+  let authUserId: string | undefined;
 
   if (process.env.DEV_BYPASS_AUTH === 'true') {
     const c = await cookies();
@@ -125,7 +126,8 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return errorResponse('No autorizado. Por favor inicia sesión.', 401);
     }
-    authEmail = user.email ?? undefined;
+    authEmail  = user.email ?? undefined;
+    authUserId = user.id;
   }
 
   // ── 2. Parse FormData ──────────────────────────────────────
@@ -239,6 +241,16 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 365,
       path: '/',
     });
+
+    // Also persist to user_metadata so applyToJob() can find it
+    if (authUserId) {
+      await adminSupabase.auth.admin.updateUserById(authUserId, {
+        user_metadata: {
+          main_resume_url: resumeUrl,
+          main_resume_name: file.name,
+        },
+      });
+    }
   }
 
   // ── 9. Upsert candidate record & dispatch webhook ─────────
