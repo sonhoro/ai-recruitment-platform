@@ -35,6 +35,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
   const [phone, setPhone] = useState(initialPhone);
   const [linkedinUrl, setLinkedinUrl] = useState(initialLinkedinUrl);
   const [portfolioUrl, setPortfolioUrl] = useState(initialPortfolioUrl);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // Track dirty fields
   const dirty = {
@@ -152,11 +153,30 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                           className="w-full rounded-xl border border-emerald-500/50 bg-slate-800 py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                         />
                       ) : (
-                        <div className="w-full rounded-xl border border-transparent bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate">
-                          {value || (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (value) {
+                              navigator.clipboard.writeText(value);
+                              setCopiedField(key);
+                              setTimeout(() => setCopiedField(null), 1500);
+                            }
+                          }}
+                          className="w-full text-left rounded-xl border border-transparent bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate hover:border-slate-600 transition-colors relative"
+                        >
+                          {value ? (
+                            <>
+                              <span className="truncate block">{value}</span>
+                              {copiedField === key && (
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-medium text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                                  Copiado
+                                </span>
+                              )}
+                            </>
+                          ) : (
                             <span className="text-slate-600 italic">No especificado</span>
                           )}
-                        </div>
+                        </button>
                       )}
                     </div>
                     <button
