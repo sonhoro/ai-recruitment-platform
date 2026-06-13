@@ -1,6 +1,5 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createServerClient, createAdminClient } from '@/lib/supabase/server';
 import { getCurrentUserContext } from './auth';
@@ -70,9 +69,9 @@ export async function changePassword(
     return { error: 'La nueva contraseña debe tener al menos 6 caracteres.' };
   }
 
-  // Verify current password
+  // Verify current password and get user ID
   const supabase = await createServerClient();
-  const { error: signInError } = await supabase.auth.signInWithPassword({
+  const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
     email: ctx.email,
     password: currentPassword,
   });
@@ -81,12 +80,12 @@ export async function changePassword(
     return { error: 'La contraseña actual es incorrecta.' };
   }
 
+  const userId = signInData.user?.id;
+  if (!userId) return { error: 'Usuario no encontrado.' };
+
   // Update password via admin API
   const admin = createAdminClient();
-  const { data: { user } } = await admin.auth.admin.getUserByEmail(ctx.email);
-  if (!user) return { error: 'Usuario no encontrado.' };
-
-  const { error: updateError } = await admin.auth.admin.updateUserById(user.id, {
+  const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
     password: newPassword,
   });
 
