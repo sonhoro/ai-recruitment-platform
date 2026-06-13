@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: 'Accede al panel de reclutamiento con IA.',
 };
 
-export default function LoginPage() {
-  return <LoginForm />;
+export default async function LoginPage(props: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await props.searchParams;
+  return <LoginForm error={error} />;
 }

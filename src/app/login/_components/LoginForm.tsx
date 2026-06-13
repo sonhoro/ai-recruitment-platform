@@ -4,10 +4,11 @@
  * src/app/login/_components/LoginForm.tsx
  *
  * Formulario de inicio de sesión — Client Component.
- * Usa useActionState para manejar el estado de carga y errores.
+ * El Server Action signIn redirige al dashboard en éxito,
+ * o a /login?error=... en fallo. El error se lee del searchParams.
  */
 
-import { useActionState, useState } from 'react';
+import { useState } from 'react';
 import { signIn } from '@/app/_actions/auth';
 import {
   ZapIcon,
@@ -21,22 +22,10 @@ import {
   EyeOffIcon,
 } from 'lucide-react';
 
-export default function LoginForm() {
-  const [error, setError]       = useState<string | null>(null);
+export default function LoginForm({ error: initialError }: { error?: string }) {
+  const [error, setError]       = useState<string | null>(initialError ?? null);
+  const [isPending, setIsPending] = useState(false);
   const [showPass, setShowPass] = useState(false);
-
-  async function action(_prev: unknown, formData: FormData) {
-    setError(null);
-    const result = await signIn(formData);
-    if (result?.redirect) {
-      window.location.href = result.redirect;
-    } else if (result?.error) {
-      setError(result.error);
-    }
-    return null;
-  }
-
-  const [_, formAction, isPending] = useActionState(action, null);
 
   const isDev = process.env.NODE_ENV === 'development';
 
@@ -105,7 +94,7 @@ export default function LoginForm() {
           )}
 
           {/* Form */}
-          <form action={formAction} className="space-y-4">
+          <form action={signIn} onSubmit={() => setIsPending(true)} className="space-y-4">
 
             {/* Email */}
             <div className="space-y-1.5">

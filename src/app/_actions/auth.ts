@@ -94,70 +94,20 @@ export async function getCurrentUserContext(): Promise<{ email: string; role: Us
 
 export async function signIn(
   formData: FormData,
-): Promise<{ success: boolean; error?: string; redirect?: string }> {
-  try {
-    const email    = formData.get('email')?.toString().trim();
-    const password = formData.get('password')?.toString();
+): Promise<never> {
+  const email    = formData.get('email')?.toString().trim();
+  const password = formData.get('password')?.toString();
 
-    if (!email || !password) {
-      return { success: false, error: 'Email y contraseña son requeridos.' };
-    }
+  if (!email || !password) {
+    redirect('/login?error=Email+y+contrase%C3%B1a+son+requeridos');
+  }
 
-    if (process.env.DEV_BYPASS_AUTH === 'true') {
-      const role = email.includes('entrevist')
-        ? 'interviewer'
-        : email.includes('candidat') || email.includes('ana.garcia')
-        ? 'candidate'
-        : 'recruiter';
-
-      const cookieStore = await cookies();
-      cookieStore.set('user_role', role, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 8,
-        path: '/',
-      });
-      cookieStore.set('user_email', email, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 8,
-        path: '/',
-      });
-
-      revalidatePath('/');
-      const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-      return { success: true, redirect: redirectUrl };
-    }
-
-    const supabase = await createServerClient();
-
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      console.error('[auth] signIn error:', error.message);
-      return {
-        success: false,
-        error:
-          error.message === 'Invalid login credentials'
-            ? 'Credenciales incorrectas. Verifica tu email y contraseña.'
-            : 'Error al iniciar sesión. Intenta de nuevo.',
-      };
-    }
-
-    if (!data.user) {
-      return { success: false, error: 'Error al obtener los datos del usuario.' };
-    }
-
-    const role = await getUserRole(data.user.id);
-
-    if (!role) {
-      return {
-        success: false,
-        error: 'No tienes acceso a la plataforma. Contacta al administrador.',
-      };
-    }
+  if (process.env.DEV_BYPASS_AUTH === 'true') {
+    const role = email.includes('entrevist')
+      ? 'interviewer'
+      : email.includes('candidat') || email.includes('ana.garcia')
+      ? 'candidate'
+      : 'recruiter';
 
     const cookieStore = await cookies();
     cookieStore.set('user_role', role, {
@@ -176,13 +126,52 @@ export async function signIn(
     });
 
     revalidatePath('/');
-
     const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-    return { success: true, redirect: redirectUrl };
-  } catch (err) {
-    console.error('[auth] signIn unexpected error:', err);
-    return { success: false, error: `Error inesperado: ${err instanceof Error ? err.message : String(err)}` };
+    redirect(redirectUrl);
   }
+
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    console.error('[auth] signIn error:', error.message);
+    const msg = error.message === 'Invalid login credentials'
+      ? 'Credenciales+incorrectas.+Verifica+tu+email+y+contrase%C3%B1a'
+      : 'Error+al+iniciar+sesi%C3%B3n.+Intenta+de+nuevo';
+    redirect(`/login?error=${msg}`);
+  }
+
+  if (!data.user) {
+    redirect('/login?error=Error+al+obtener+los+datos+del+usuario');
+  }
+
+  const role = await getUserRole(data.user.id);
+
+  if (!role) {
+    redirect('/login?error=No+tienes+acceso+a+la+plataforma.+Contacta+al+administrador');
+  }
+
+  const cookieStore = await cookies();
+  cookieStore.set('user_role', role, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 8,
+    path: '/',
+  });
+  cookieStore.set('user_email', email, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 8,
+    path: '/',
+  });
+
+  revalidatePath('/');
+
+  const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
+  redirect(redirectUrl);
 }
 
 // ─────────────────────────────────────────────────────────────
