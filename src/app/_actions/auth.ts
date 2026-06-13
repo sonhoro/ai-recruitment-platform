@@ -194,6 +194,7 @@ export async function signIn(
 export interface RegisterResult {
   success: boolean;
   error?: string;
+  redirect?: string;
 }
 
 export async function candidateRegister(
@@ -230,14 +231,25 @@ export async function candidateRegister(
     return { success: false, error: 'Error al crear el usuario.' };
   }
 
-  // Link to candidate record if one exists with this email (e.g. from seed data)
-  const { error: updateError } = await admin
+  // Create candidate record (or link existing one by email)
+  const { data: existing } = await admin
     .from('candidates')
-    .update({ auth_user_id: data.user.id })
-    .eq('email', email);
+    .select('id')
+    .eq('email', email)
+    .is('job_id', null)
+    .maybeSingle();
 
-  if (updateError) {
-    console.error('[auth] candidate link error:', updateError.message);
+  if (existing) {
+    await admin.from('candidates').update({ auth_user_id: data.user.id }).eq('id', existing.id);
+  } else {
+    await admin.from('candidates').insert({
+      auth_user_id: data.user.id,
+      full_name: fullName,
+      email,
+      status: 'new',
+      source: 'registration',
+      job_id: null,
+    });
   }
 
   // Sign in so the user has a session immediately
@@ -262,7 +274,7 @@ export async function candidateRegister(
   });
 
   revalidatePath('/candidate');
-  redirect('/candidate');
+  return { success: true, redirect: '/candidate' };
 }
 
 // ─────────────────────────────────────────────────────────────

@@ -29,6 +29,8 @@ export default function RegisterForm() {
       const result = await candidateRegister(formData);
       if (result && !result.success) {
         setError(result.error ?? null);
+      } else if (result?.redirect) {
+        window.location.href = result.redirect;
       }
     });
   }
