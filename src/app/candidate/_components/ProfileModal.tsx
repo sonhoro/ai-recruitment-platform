@@ -135,8 +135,8 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                   <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
                     {label}
                   </label>
-                  <div className="relative flex items-center gap-2">
-                    <div className="relative flex-1">
+                  <div className="relative flex items-center gap-2 min-w-0">
+                    <div className="relative flex-1 min-w-0 overflow-hidden">
                       <Icon className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                       {editing === key ? (
                         <input
@@ -153,8 +153,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                           className="w-full rounded-xl border border-emerald-500/50 bg-slate-800 py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                         />
                       ) : (
-                        <button
-                          type="button"
+                        <div
                           onClick={() => {
                             if (value) {
                               navigator.clipboard.writeText(value);
@@ -162,13 +161,14 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                               setTimeout(() => setCopiedField(null), 1500);
                             }
                           }}
-                          className="w-full text-left rounded-xl border border-transparent bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate hover:border-slate-600 transition-colors relative"
+                          className="w-full rounded-xl border border-transparent bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate hover:border-slate-600 transition-colors cursor-pointer relative overflow-hidden"
+                          title={value || undefined}
                         >
                           {value ? (
                             <>
-                              <span className="truncate block">{value}</span>
+                              {value}
                               {copiedField === key && (
-                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-medium text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-medium text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded z-10">
                                   Copiado
                                 </span>
                               )}
@@ -176,7 +176,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                           ) : (
                             <span className="text-slate-600 italic">No especificado</span>
                           )}
-                        </button>
+                        </div>
                       )}
                     </div>
                     <button
