@@ -25,15 +25,23 @@ export default async function CandidateJobsPage() {
   const user = userResult.data?.user;
 
   let mainResumeUrl: string;
-  let mainResumeName: string;
 
   if (process.env.DEV_BYPASS_AUTH === 'true') {
     const c = await cookies();
     mainResumeUrl = c.get('main_resume_url')?.value ?? '';
-    mainResumeName = c.get('main_resume_name')?.value ?? '';
   } else {
     mainResumeUrl = (user?.user_metadata?.main_resume_url as string) ?? '';
-    mainResumeName = (user?.user_metadata?.main_resume_name as string) ?? '';
+  }
+
+  // Fetch jobs the user has already applied to
+  let appliedJobIds: Set<string> = new Set();
+  if (ctx) {
+    const { data: myApps } = await supabase
+      .from('candidates')
+      .select('job_id')
+      .eq('email', ctx.email)
+      .not('job_id', 'is', null);
+    appliedJobIds = new Set((myApps ?? []).map((a: any) => a.job_id));
   }
 
   return (
@@ -65,7 +73,7 @@ export default async function CandidateJobsPage() {
           <JobsList
             jobs={jobs as JobRow[]}
             mainResumeUrl={mainResumeUrl}
-            mainResumeName={mainResumeName}
+            appliedJobIds={appliedJobIds}
           />
         )}
       </div>

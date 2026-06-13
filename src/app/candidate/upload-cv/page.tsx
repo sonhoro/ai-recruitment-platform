@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { UploadIcon } from 'lucide-react';
 import { createServerClient } from '@/lib/supabase/server';
 import { getCurrentUserContext } from '@/app/_actions/auth';
@@ -20,6 +21,7 @@ export default async function UploadCvPage({
 
   let email = '';
   let fullName = '';
+  let existingCvName = '';
 
   if (ctx) {
     email = ctx.email;
@@ -27,7 +29,7 @@ export default async function UploadCvPage({
     const supabase = await createServerClient();
     const { data: candidate } = await supabase
       .from('candidates')
-      .select('full_name')
+      .select('full_name, resume_url')
       .eq('email', ctx.email)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -35,6 +37,16 @@ export default async function UploadCvPage({
 
     if (candidate?.full_name) {
       fullName = candidate.full_name;
+    }
+
+    if (candidate?.resume_url) {
+      const parts = candidate.resume_url.split('/');
+      existingCvName = decodeURIComponent(parts[parts.length - 1] ?? '');
+    }
+
+    if (!existingCvName) {
+      const c = await cookies();
+      existingCvName = c.get('main_resume_name')?.value ?? '';
     }
   }
 
@@ -57,6 +69,7 @@ export default async function UploadCvPage({
           email={email}
           fullName={fullName}
           jobId={job_id ?? ''}
+          existingCvName={existingCvName}
         />
       </div>
     </div>

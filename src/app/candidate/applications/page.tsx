@@ -77,10 +77,23 @@ export default async function CandidateApplicationsPage() {
       jobs ( title, department, location, remote_policy )
     `)
     .eq('email', ctx.email)
+    .not('job_id', 'is', null)
     .order('applied_at', { ascending: false });
 
+  // Filter out any results without a valid job relation
+  // Defensive: jobs.title is NOT NULL in the schema — if it's missing,
+  // the join failed (null FK, missing FK target, or Supabase join quirk).
+  const validApplications = (rawApplications ?? []).filter(
+    (app: any) => {
+      if (!app.job_id) return false;
+      if (!app.jobs) return false;
+      if (!app.jobs.title) return false;
+      return true;
+    },
+  );
+
   // Fetch scores for each application
-  const applications = (rawApplications ?? []).map((app: any) => ({ ...app, score: null as number | null }));
+  const applications = validApplications.map((app: any) => ({ ...app, score: null as number | null }));
   if (applications.length > 0) {
     const ids = applications.map((a: any) => a.id);
     const { data: scores } = await supabase
@@ -103,9 +116,16 @@ export default async function CandidateApplicationsPage() {
             <BriefcaseIcon className="w-8 h-8 text-slate-600" />
           </div>
           <h2 className="text-xl font-bold text-white mb-2">No tienes postulaciones</h2>
-          <p className="text-sm text-slate-400">
-            Aún no te has postulado a ninguna vacante. Cuando lo hagas, aparecerán aquí.
+          <p className="text-sm text-slate-400 mb-6">
+            Debes aplicar a una vacante primero para que aparezca aquí.
           </p>
+          <a
+            href="/candidate/jobs"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+          >
+            <BriefcaseIcon className="w-4 h-4" />
+            Ver vacantes disponibles
+          </a>
         </div>
       </div>
     );

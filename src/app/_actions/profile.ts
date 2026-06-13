@@ -33,20 +33,6 @@ export async function updateProfile(
       .eq('id', existing.id);
 
     if (error) return { error: 'Error al actualizar el perfil.' };
-  } else {
-    const { error } = await admin
-      .from('candidates')
-      .insert({
-        email: ctx.email,
-        full_name: ctx.email.split('@')[0],
-        phone,
-        linkedin_url: linkedinUrl,
-        portfolio_url: portfolioUrl,
-        status: 'new',
-        source: 'registration',
-      });
-
-    if (error) return { error: 'Error al crear el perfil.' };
   }
 
   revalidatePath('/candidate');

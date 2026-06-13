@@ -15,9 +15,10 @@ interface UploadCvFormProps {
   email: string;
   fullName: string;
   jobId: string;
+  existingCvName?: string;
 }
 
-export default function UploadCvForm({ email, fullName, jobId }: UploadCvFormProps) {
+export default function UploadCvForm({ email, fullName, jobId, existingCvName }: UploadCvFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [file, setFile] = useState<File | null>(null);
@@ -86,6 +87,23 @@ export default function UploadCvForm({ email, fullName, jobId }: UploadCvFormPro
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* CV state notification */}
+      {existingCvName ? (
+        <div className="flex items-start gap-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3">
+          <AlertCircleIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-amber-300">
+            Tienes un CV guardado: <span className="font-medium text-amber-200">{existingCvName}</span>. ¿Deseas modificarlo?
+          </p>
+        </div>
+      ) : (
+        <div className="flex items-start gap-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 px-4 py-3">
+          <AlertCircleIcon className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-slate-400">
+            No tienes un CV subido todavía. Sube tu currículum en formato PDF para poder postularte a las vacantes.
+          </p>
+        </div>
+      )}
+
       {/* Drop zone */}
       <div
         onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}

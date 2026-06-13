@@ -8,6 +8,7 @@ import {
   ClockIcon,
   WifiIcon,
   BuildingIcon,
+  CheckCircleIcon,
 } from 'lucide-react';
 import type { JobRow } from '@/types/database.types';
 
@@ -35,10 +36,10 @@ function formatDate(iso: string | null): string {
 interface JobsListProps {
   jobs: JobRow[];
   mainResumeUrl: string;
-  mainResumeName: string;
+  appliedJobIds: Set<string>;
 }
 
-export default function JobsList({ jobs, mainResumeUrl, mainResumeName }: JobsListProps) {
+export default function JobsList({ jobs, mainResumeUrl, appliedJobIds }: JobsListProps) {
   const [applyJob, setApplyJob] = useState<{ id: string; title: string } | null>(null);
 
   return (
@@ -94,13 +95,28 @@ export default function JobsList({ jobs, mainResumeUrl, mainResumeName }: JobsLi
               <p className="text-sm text-slate-400 mb-4 line-clamp-2">{job.description}</p>
             )}
 
-            <button
-              onClick={() => setApplyJob({ id: job.id, title: job.title })}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
-            >
-              Postularme
-              <BriefcaseIcon className="w-4 h-4" />
-            </button>
+            {appliedJobIds.has(job.id) ? (
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30">
+                  <CheckCircleIcon className="w-3 h-3" />
+                  Ya postulaste
+                </span>
+                <button
+                  onClick={() => setApplyJob({ id: job.id, title: job.title })}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium transition-colors"
+                >
+                  Actualizar CV
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setApplyJob({ id: job.id, title: job.title })}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+              >
+                Postularme
+                <BriefcaseIcon className="w-4 h-4" />
+              </button>
+            )}
           </article>
         ))}
       </div>
@@ -110,7 +126,6 @@ export default function JobsList({ jobs, mainResumeUrl, mainResumeName }: JobsLi
           jobId={applyJob.id}
           jobTitle={applyJob.title}
           mainResumeUrl={mainResumeUrl}
-          mainResumeName={mainResumeName}
           onClose={() => setApplyJob(null)}
         />
       )}

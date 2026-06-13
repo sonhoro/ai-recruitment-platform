@@ -218,27 +218,6 @@ export async function candidateRegister(
     return { success: false, error: 'Error al crear el usuario.' };
   }
 
-  // Create candidate record (or link existing one by email)
-  const { data: existing } = await admin
-    .from('candidates')
-    .select('id')
-    .eq('email', email)
-    .is('job_id', null)
-    .maybeSingle();
-
-  if (existing) {
-    await admin.from('candidates').update({ auth_user_id: data.user.id }).eq('id', existing.id);
-  } else {
-    await admin.from('candidates').insert({
-      auth_user_id: data.user.id,
-      full_name: fullName,
-      email,
-      status: 'new',
-      source: 'registration',
-      job_id: null,
-    });
-  }
-
   // Sign in so the user has a session immediately
   const anonClient = await createServerClient();
   await anonClient.auth.signInWithPassword({ email, password });
