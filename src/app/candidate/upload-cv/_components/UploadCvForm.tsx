@@ -75,6 +75,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
             router.push('/candidate/applications');
           } else {
             setMessage({ type: 'success', text: 'CV subido correctamente.' });
+            router.refresh();
           }
         } else {
           setMessage({ type: 'error', text: data.error ?? 'Error al subir el CV.' });
