@@ -44,7 +44,7 @@ export default async function UploadCvPage({
       existingCvName = decodeURIComponent(parts[parts.length - 1] ?? '');
     }
 
-    if (!existingCvName) {
+    if (!existingCvName && process.env.DEV_BYPASS_AUTH === 'true') {
       const c = await cookies();
       existingCvName = c.get('main_resume_name')?.value ?? '';
     }
