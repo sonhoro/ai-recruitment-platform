@@ -24,9 +24,12 @@ const NAV_ITEMS = [
 interface SidebarNavProps {
   displayName: string;
   displayEmail: string;
+  phone?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
 }
 
-export default function CandidateSidebarNav({ displayName, displayEmail }: SidebarNavProps) {
+export default function CandidateSidebarNav({ displayName, displayEmail, phone, linkedinUrl, portfolioUrl }: SidebarNavProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -106,7 +109,13 @@ export default function CandidateSidebarNav({ displayName, displayEmail }: Sideb
         </div>
       </div>
 
-      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
+      <ProfileModal
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        initialPhone={phone ?? ''}
+        initialLinkedinUrl={linkedinUrl ?? ''}
+        initialPortfolioUrl={portfolioUrl ?? ''}
+      />
     </>
   );
 }

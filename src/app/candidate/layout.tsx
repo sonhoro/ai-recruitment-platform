@@ -13,23 +13,28 @@ export default async function CandidateLayout({
 
   let displayName = 'Candidato';
   let displayEmail = '';
+  let phone = '';
+  let linkedinUrl = '';
+  let portfolioUrl = '';
 
   if (ctx) {
     displayEmail = ctx.email;
     displayName = ctx.email.split('@')[0];
 
-    // Try to get full_name from database
     const supabase = await createServerClient();
     const { data: candidate } = await supabase
       .from('candidates')
-      .select('full_name')
+      .select('full_name, phone, linkedin_url, portfolio_url')
       .eq('email', ctx.email)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (candidate?.full_name) {
-      displayName = candidate.full_name;
+    if (candidate) {
+      if (candidate.full_name) displayName = candidate.full_name;
+      if (candidate.phone) phone = candidate.phone;
+      if (candidate.linkedin_url) linkedinUrl = candidate.linkedin_url;
+      if (candidate.portfolio_url) portfolioUrl = candidate.portfolio_url;
     }
   }
 
@@ -37,7 +42,13 @@ export default async function CandidateLayout({
     <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
       <aside className="w-64 flex-shrink-0 flex flex-col bg-slate-900 border-r border-slate-800">
         <Suspense fallback={null}>
-          <CandidateSidebarNav displayName={displayName} displayEmail={displayEmail} />
+          <CandidateSidebarNav
+            displayName={displayName}
+            displayEmail={displayEmail}
+            phone={phone}
+            linkedinUrl={linkedinUrl}
+            portfolioUrl={portfolioUrl}
+          />
         </Suspense>
       </aside>
       <main className="flex-1 overflow-y-auto">
