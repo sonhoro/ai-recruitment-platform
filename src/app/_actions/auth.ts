@@ -94,7 +94,7 @@ export async function getCurrentUserContext(): Promise<{ email: string; role: Us
 
 export async function signIn(
   formData: FormData,
-): Promise<{ success: false; error: string } | never> {
+): Promise<{ success: boolean; error?: string; redirect?: string }> {
   try {
     const email    = formData.get('email')?.toString().trim();
     const password = formData.get('password')?.toString();
@@ -128,7 +128,7 @@ export async function signIn(
 
       revalidatePath('/');
       const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-      redirect(redirectUrl);
+      return { success: true, redirect: redirectUrl };
     }
 
     const supabase = await createServerClient();
@@ -178,9 +178,8 @@ export async function signIn(
     revalidatePath('/');
 
     const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-    redirect(redirectUrl);
+    return { success: true, redirect: redirectUrl };
   } catch (err) {
-    if ((err as any)?.digest?.startsWith('NEXT_REDIRECT')) throw err;
     console.error('[auth] signIn unexpected error:', err);
     return { success: false, error: `Error inesperado: ${err instanceof Error ? err.message : String(err)}` };
   }

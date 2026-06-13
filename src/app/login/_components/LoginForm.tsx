@@ -28,8 +28,10 @@ export default function LoginForm() {
   async function action(_prev: unknown, formData: FormData) {
     setError(null);
     const result = await signIn(formData);
-    if (result && !result.success) {
-      setError(result.error ?? null);
+    if (result?.redirect) {
+      window.location.href = result.redirect;
+    } else if (result?.error) {
+      setError(result.error);
     }
     return null;
   }
