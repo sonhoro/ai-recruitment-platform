@@ -2,15 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import {
   BriefcaseIcon,
   UploadIcon,
   FileTextIcon,
   UserIcon,
   LogOutIcon,
+  SettingsIcon,
   SparklesIcon,
 } from 'lucide-react';
 import { signOut } from '@/app/_actions/auth';
+import ProfileModal from './ProfileModal';
 
 const NAV_ITEMS = [
   { href: '/candidate/jobs',         label: 'Vacantes disponibles', icon: BriefcaseIcon },
@@ -25,6 +28,7 @@ interface SidebarNavProps {
 
 export default function CandidateSidebarNav({ displayName, displayEmail }: SidebarNavProps) {
   const pathname = usePathname();
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <>
@@ -83,12 +87,17 @@ export default function CandidateSidebarNav({ displayName, displayEmail }: Sideb
       </div>
 
       <div className="px-4 py-4 border-t border-slate-800">
-        <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex-shrink-0 ring-2 ring-emerald-500/20" />
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-white truncate">{displayName}</p>
-            <p className="text-xs text-slate-500 truncate">{displayEmail}</p>
-          </div>
+        <div className="flex items-center gap-2 px-2">
+          <button onClick={() => setProfileOpen(true)} className="flex items-center gap-3 flex-1 min-w-0 rounded-lg hover:bg-slate-800/50 transition-all px-1.5 py-1.5 -ml-1.5 group">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex-shrink-0 ring-2 ring-emerald-500/20" />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="text-xs font-medium text-white truncate group-hover:text-emerald-300 transition-colors">{displayName}</p>
+              <p className="text-xs text-slate-500 truncate">{displayEmail}</p>
+            </div>
+          </button>
+          <button onClick={() => setProfileOpen(true)} title="Editar perfil" className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-emerald-400 hover:bg-emerald-400/10 transition-all duration-150">
+            <SettingsIcon className="w-3.5 h-3.5" />
+          </button>
           <form action={signOut}>
             <button type="submit" title="Cerrar sesión" className="flex items-center justify-center w-7 h-7 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all duration-150">
               <LogOutIcon className="w-3.5 h-3.5" />
@@ -96,6 +105,8 @@ export default function CandidateSidebarNav({ displayName, displayEmail }: Sideb
           </form>
         </div>
       </div>
+
+      <ProfileModal open={profileOpen} onClose={() => setProfileOpen(false)} />
     </>
   );
 }
