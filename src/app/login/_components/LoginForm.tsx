@@ -4,11 +4,10 @@
  * src/app/login/_components/LoginForm.tsx
  *
  * Formulario de inicio de sesión — Client Component.
- * Llama al Server Action signIn() con useTransition para
- * manejar el estado de carga sin bloquear la UI.
+ * Usa useActionState para manejar el estado de carga y errores.
  */
 
-import { useTransition, useState, useRef } from 'react';
+import { useActionState, useState } from 'react';
 import { signIn } from '@/app/_actions/auth';
 import {
   ZapIcon,
@@ -23,26 +22,19 @@ import {
 } from 'lucide-react';
 
 export default function LoginForm() {
-  const [isPending, startTransition] = useTransition();
-  const [error, setError]           = useState<string | null>(null);
-  const [showPass, setShowPass]     = useState(false);
-  const formRef                     = useRef<HTMLFormElement>(null);
+  const [error, setError]       = useState<string | null>(null);
+  const [showPass, setShowPass] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function action(_prev: unknown, formData: FormData) {
     setError(null);
-
-    const formData = new FormData(e.currentTarget);
-
-    startTransition(async () => {
-      const result = await signIn(formData);
-      if (result && !result.success) {
-        setError(result.error ?? null);
-      } else if (result?.redirect) {
-        window.location.href = result.redirect;
-      }
-    });
+    const result = await signIn(formData);
+    if (result && !result.success) {
+      setError(result.error ?? null);
+    }
+    return null;
   }
+
+  const [_, formAction, isPending] = useActionState(action, null);
 
   const isDev = process.env.NODE_ENV === 'development';
 
@@ -111,7 +103,7 @@ export default function LoginForm() {
           )}
 
           {/* Form */}
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          <form action={formAction} className="space-y-4">
 
             {/* Email */}
             <div className="space-y-1.5">

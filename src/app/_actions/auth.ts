@@ -8,12 +8,6 @@ import type { Database } from '@/types/database.types';
 
 export type UserRole = 'recruiter' | 'interviewer' | 'candidate';
 
-export interface SignInResult {
-  success: boolean;
-  error?: string;
-  redirect?: string;
-}
-
 /**
  * Look up the platform platform role for a given auth user ID.
  * Checks user_metadata first (set during registration),
@@ -100,7 +94,7 @@ export async function getCurrentUserContext(): Promise<{ email: string; role: Us
 
 export async function signIn(
   formData: FormData,
-): Promise<SignInResult | never> {
+): Promise<{ success: false; error: string } | never> {
   try {
     const email    = formData.get('email')?.toString().trim();
     const password = formData.get('password')?.toString();
@@ -134,7 +128,7 @@ export async function signIn(
 
       revalidatePath('/');
       const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-      return { success: true, redirect: redirectUrl };
+      redirect(redirectUrl);
     }
 
     const supabase = await createServerClient();
@@ -184,8 +178,9 @@ export async function signIn(
     revalidatePath('/');
 
     const redirectUrl = role === 'interviewer' ? '/interviewer' : role === 'candidate' ? '/candidate' : '/dashboard/jobs';
-    return { success: true, redirect: redirectUrl };
+    redirect(redirectUrl);
   } catch (err) {
+    if ((err as any)?.digest?.startsWith('NEXT_REDIRECT')) throw err;
     console.error('[auth] signIn unexpected error:', err);
     return { success: false, error: `Error inesperado: ${err instanceof Error ? err.message : String(err)}` };
   }
