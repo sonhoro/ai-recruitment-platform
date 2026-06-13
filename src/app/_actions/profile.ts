@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { createServerClient, createAdminClient } from '@/lib/supabase/server';
 import { getCurrentUserContext } from './auth';
 
+const AVATAR_BUCKET = 'avatars';
+
 export async function updateProfile(
   formData: FormData,
 ): Promise<{ success: true } | { error: string }> {
@@ -94,4 +96,74 @@ export async function changePassword(
   }
 
   return { success: true };
+}
+
+export async function updateAvatar(
+  formData: FormData,
+): Promise<{ success: true; url: string } | { error: string }> {
+  const ctx = await getCurrentUserContext();
+  if (!ctx) return { error: 'No autorizado.' };
+
+  const file = formData.get('avatar') as File | null;
+  if (!file) return { error: 'Selecciona una imagen.' };
+
+  if (!file.type.startsWith('image/')) {
+    return { error: 'Solo se aceptan imágenes.' };
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    return { error: 'La imagen no debe superar los 2 MB.' };
+  }
+
+  const admin = createAdminClient();
+
+  // Ensure bucket exists
+  const { data: buckets } = await admin.storage.listBuckets();
+  const bucketExists = buckets?.some((b) => b.name === AVATAR_BUCKET);
+  if (!bucketExists) {
+    const { error: createError } = await admin.storage.createBucket(AVATAR_BUCKET, { public: true });
+    if (createError) return { error: 'Error al crear el bucket.' };
+  }
+
+  const ext = file.name.split('.').pop() || 'jpg';
+  const storagePath = `${ctx.email}/${Date.now()}.${ext}`;
+  const arrayBuffer = await file.arrayBuffer();
+
+  const { error: storageError } = await admin.storage
+    .from(AVATAR_BUCKET)
+    .upload(storagePath, arrayBuffer, {
+      contentType: file.type,
+      upsert: true,
+    });
+
+  if (storageError) return { error: 'Error al subir la imagen.' };
+
+  const { data: { publicUrl } } = admin.storage
+    .from(AVATAR_BUCKET)
+    .getPublicUrl(storagePath);
+
+  // Store in candidates table
+  const { data: existing } = await admin
+    .from('candidates')
+    .select('id')
+    .eq('email', ctx.email)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    await admin.from('candidates').update({ avatar_url: publicUrl }).eq('id', existing.id);
+  }
+
+  // Also persist to user_metadata
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    await admin.auth.admin.updateUserById(user.id, {
+      user_metadata: { ...user.user_metadata, avatar_url: publicUrl },
+    });
+  }
+
+  revalidatePath('/candidate');
+  return { success: true, url: publicUrl };
 }

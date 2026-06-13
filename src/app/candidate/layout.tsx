@@ -16,6 +16,7 @@ export default async function CandidateLayout({
   let phone = '';
   let linkedinUrl = '';
   let portfolioUrl = '';
+  let avatarUrl = '';
 
   if (ctx) {
     displayEmail = ctx.email;
@@ -24,7 +25,7 @@ export default async function CandidateLayout({
     const supabase = await createServerClient();
     const { data: candidate } = await supabase
       .from('candidates')
-      .select('full_name, phone, linkedin_url, portfolio_url')
+      .select('full_name, phone, linkedin_url, portfolio_url, avatar_url')
       .eq('email', ctx.email)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -35,6 +36,7 @@ export default async function CandidateLayout({
       if (candidate.phone) phone = candidate.phone;
       if (candidate.linkedin_url) linkedinUrl = candidate.linkedin_url;
       if (candidate.portfolio_url) portfolioUrl = candidate.portfolio_url;
+      if (candidate.avatar_url) avatarUrl = candidate.avatar_url;
     }
   }
 
@@ -48,6 +50,7 @@ export default async function CandidateLayout({
             phone={phone}
             linkedinUrl={linkedinUrl}
             portfolioUrl={portfolioUrl}
+            avatarUrl={avatarUrl}
           />
         </Suspense>
       </aside>

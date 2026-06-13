@@ -14,8 +14,9 @@ import {
   PencilIcon,
   EyeIcon,
   EyeOffIcon,
+  CameraIcon,
 } from 'lucide-react';
-import { updateProfile, changePassword } from '@/app/_actions/profile';
+import { updateProfile, changePassword, updateAvatar } from '@/app/_actions/profile';
 
 interface ProfileModalProps {
   open: boolean;
@@ -23,19 +24,23 @@ interface ProfileModalProps {
   initialPhone: string;
   initialLinkedinUrl: string;
   initialPortfolioUrl: string;
+  initialAvatarUrl: string;
 }
 
 type Field = 'phone' | 'linkedin_url' | 'portfolio_url';
 
-export default function ProfileModal({ open, onClose, initialPhone, initialLinkedinUrl, initialPortfolioUrl }: ProfileModalProps) {
+export default function ProfileModal({ open, onClose, initialPhone, initialLinkedinUrl, initialPortfolioUrl, initialAvatarUrl }: ProfileModalProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'password'>('profile');
   const overlayRef = useRef<HTMLDivElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [editing, setEditing] = useState<Field | null>(null);
   const [phone, setPhone] = useState(initialPhone);
   const [linkedinUrl, setLinkedinUrl] = useState(initialLinkedinUrl);
   const [portfolioUrl, setPortfolioUrl] = useState(initialPortfolioUrl);
+  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   // Track dirty fields
   const dirty = {
@@ -129,7 +134,52 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
 
         <div className="px-5 py-5 max-h-[60vh] overflow-y-auto">
           {activeTab === 'profile' ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Avatar */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="relative">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover ring-2 ring-emerald-500/20" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center ring-2 ring-emerald-500/20">
+                      <UserIcon className="w-8 h-8 text-white" />
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={avatarUploading}
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center ring-2 ring-slate-900 hover:bg-emerald-500 transition-colors disabled:opacity-60"
+                    title="Cambiar foto"
+                  >
+                    {avatarUploading ? (
+                      <LoaderIcon className="w-3.5 h-3.5 text-white animate-spin" />
+                    ) : (
+                      <CameraIcon className="w-3.5 h-3.5 text-white" />
+                    )}
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setAvatarUploading(true);
+                      const fd = new FormData();
+                      fd.set('avatar', file);
+                      const result = await updateAvatar(fd);
+                      if ('url' in result) {
+                        setAvatarUrl(result.url);
+                      }
+                      setAvatarUploading(false);
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-slate-500">Haz clic en el icono para cambiar tu foto</p>
+              </div>
+
               {fields.map(({ key, label, icon: Icon, value, placeholder }) => (
                 <div key={key} className="space-y-1.5">
                   <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
