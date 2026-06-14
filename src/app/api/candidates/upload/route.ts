@@ -251,6 +251,15 @@ export async function POST(request: NextRequest) {
         },
       });
     }
+
+    // Update existing candidate rows with the new resume URL
+    if (authEmail) {
+      await adminSupabase
+        .from('candidates')
+        .update({ resume_url: resumeUrl })
+        .eq('email', authEmail)
+        .neq('resume_url', resumeUrl);
+    }
   }
 
   // ── 9. Upsert candidate record & dispatch webhook ─────────
