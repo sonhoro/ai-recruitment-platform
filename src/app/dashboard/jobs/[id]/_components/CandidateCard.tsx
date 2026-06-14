@@ -105,6 +105,38 @@ function RankBadge({ rank }: { rank: number }) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// AI Recommendation badge
+// ─────────────────────────────────────────────────────────────
+
+const RECOMMENDATION_STYLES: Record<string, string> = {
+  advance:   'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  interview: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+  test:      'bg-amber-500/15 text-amber-300 border-amber-500/30',
+  hold:      'bg-sky-500/15 text-sky-300 border-sky-500/30',
+  discard:   'bg-red-500/15 text-red-300 border-red-500/30',
+}
+
+const RECOMMENDATION_LABELS: Record<string, string> = {
+  advance:   'AI: Avanzar',
+  interview: 'AI: Entrevista',
+  test:      'AI: Test',
+  hold:      'AI: Hold',
+  discard:   'AI: Descartar',
+}
+
+function AiRecommendationBadge({ recommendation }: { recommendation: string | null }) {
+  if (!recommendation) return null
+  const label = RECOMMENDATION_LABELS[recommendation]
+  const style = RECOMMENDATION_STYLES[recommendation]
+  if (!label || !style) return null
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${style}`}>
+      {label}
+    </span>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
 // Seniority badge
 // ─────────────────────────────────────────────────────────────
 
@@ -177,6 +209,7 @@ export default function CandidateCard({
               {candidate.full_name}
             </span>
             <SeniorityBadge level={candidate.seniority} />
+            <AiRecommendationBadge recommendation={candidate.ai_recommendation} />
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
             <span className="flex items-center gap-1 text-xs text-slate-500 truncate">

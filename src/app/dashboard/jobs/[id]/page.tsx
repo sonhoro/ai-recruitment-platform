@@ -116,12 +116,13 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       prompt_tokens:     sc?.prompt_tokens ?? 0,
       completion_tokens: sc?.completion_tokens ?? 0,
       latency_ms:        sc?.latency_ms ?? 0,
-      seniority:         (c.seniority ?? 'Semi-Senior') as any,
-      current_role:      '',
-      years_experience:  0,
-      skills:            [],
-      ai_summary:        c.ai_summary ?? '',
-      location:          c.location ?? '',
+      seniority:          (c.seniority ?? 'Semi-Senior') as any,
+      current_role:       '',
+      years_experience:   0,
+      skills:             [],
+      ai_summary:         c.ai_summary ?? '',
+      location:           c.location ?? '',
+      ai_recommendation:  c.ai_recommendation ?? null,
     };
   });
 

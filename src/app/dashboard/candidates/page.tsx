@@ -20,7 +20,7 @@ export default async function CandidatesPage() {
   const { data: candidates } = await supabase
     .from('candidates')
     .select(`
-      id, job_id, full_name, email, status, seniority, applied_at, location,
+      id, job_id, full_name, email, status, seniority, ai_recommendation, applied_at, location,
       jobs ( title )
     `)
     .not('job_id', 'is', null)
@@ -48,6 +48,7 @@ export default async function CandidatesPage() {
     job_title: c.jobs?.title ?? '',
     score: scoreMap.get(c.id) ?? 0,
     skills: [] as string[],
+    ai_recommendation: c.ai_recommendation ?? null,
   }))
 
   return <CandidatesClient candidates={enriched} />

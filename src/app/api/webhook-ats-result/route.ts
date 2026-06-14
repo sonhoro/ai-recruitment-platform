@@ -106,29 +106,37 @@ function errorResponse(message: string, status: number, detail?: string) {
 }
 
 /**
- * Derives the next CandidateStatus from the LLM suggestion keyword.
+ * Maps LLM suggestion → ai_recommendation value.
  *
- * Mapping:
- *   ADVANCE   → 'interview'  (recruiter review confirmed, move to interview)
- *   INTERVIEW → 'interview'  (schedule exploratory call)
- *   TEST      → 'interview'  (schedule technical assessment — same stage bucket)
- *   HOLD      → 'screening'  (keep in screening, recruiter to review manually)
- *   DISCARD   → 'rejected'   (auto-reject)
+ *   ADVANCE   → 'advance'
+ *   INTERVIEW → 'interview'
+ *   TEST      → 'test'
+ *   HOLD      → 'hold'
+ *   DISCARD   → 'discard'
+ */
+function deriveRecommendation(suggestions: string): string {
+  const prefix = suggestions.split(':')[0]?.toUpperCase().trim();
+  switch (prefix) {
+    case 'ADVANCE':   return 'advance';
+    case 'INTERVIEW': return 'interview';
+    case 'TEST':      return 'test';
+    case 'DISCARD':   return 'discard';
+    case 'HOLD':
+    default:          return 'hold';
+  }
+}
+
+/**
+ * Derives the next CandidateStatus using Human-in-the-loop approach.
+ *
+ * For ADVANCE / INTERVIEW / TEST → keep at 'screening'
+ *   (recruiter must manually advance via the dashboard).
+ * For DISCARD                    → 'rejected' (auto-reject obvious mismatches).
+ * For HOLD                       → 'screening' (recruiter to review manually).
  */
 function deriveStatus(suggestions: string): AIPipelineStatus {
   const prefix = suggestions.split(':')[0]?.toUpperCase().trim();
-
-  switch (prefix) {
-    case 'ADVANCE':
-    case 'INTERVIEW':
-    case 'TEST':
-      return 'interview';
-    case 'DISCARD':
-      return 'rejected';
-    case 'HOLD':
-    default:
-      return 'screening';
-  }
+  return prefix === 'DISCARD' ? 'rejected' : 'screening';
 }
 
 /**
@@ -318,17 +326,19 @@ export async function POST(request: NextRequest) {
   //   updated_at  — touched automatically by the set_updated_at() trigger
   //
   const nextStatus: AIPipelineStatus = deriveStatus(json_result.suggestions);
+  const recommendation: string = deriveRecommendation(json_result.suggestions);
 
   const { data: updatedCandidate, error: candidateError } = await adminSupabase
     .from('candidates')
     .update({
-      ai_summary: json_result.summary,
-      seniority:  json_result.seniority,
-      status:     nextStatus,
+      ai_summary:         json_result.summary,
+      seniority:          json_result.seniority,
+      status:             nextStatus,
+      ai_recommendation:  recommendation,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)
     .eq('id', candidate_id)
-    .select('id, status, ai_summary, seniority')
+    .select('id, status, ai_summary, seniority, ai_recommendation')
     .single();
 
   if (candidateError) {
@@ -368,10 +378,11 @@ export async function POST(request: NextRequest) {
         total_tokens:   scoreRecord.total_tokens,
       },
       candidate: {
-        id:         updatedCandidate.id,
-        status:     updatedCandidate.status,
-        ai_summary: updatedCandidate.ai_summary,
-        seniority:  updatedCandidate.seniority,
+        id:                updatedCandidate.id,
+        status:            updatedCandidate.status,
+        ai_summary:        updatedCandidate.ai_summary,
+        seniority:         updatedCandidate.seniority,
+        ai_recommendation: updatedCandidate.ai_recommendation,
       },
     },
     { status: 200 },

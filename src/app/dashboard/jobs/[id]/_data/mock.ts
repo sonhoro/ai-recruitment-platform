@@ -44,12 +44,13 @@ export interface CandidateWithScore {
   latency_ms:       number;
 
   // ── AI-parsed fields (from resume_text extraction) ─────────
-  seniority:         SeniorityLevel;
-  current_role:      string;
-  years_experience:  number;
-  skills:            string[];
-  ai_summary:        string;       // 3-4 sentence professional summary
-  location:          string;
+  seniority:          SeniorityLevel;
+  current_role:       string;
+  years_experience:   number;
+  skills:             string[];
+  ai_summary:         string;       // 3-4 sentence professional summary
+  location:           string;
+  ai_recommendation:  'advance' | 'interview' | 'test' | 'hold' | 'discard' | null;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -115,6 +116,7 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Andrea cuenta con 8 años de experiencia construyendo interfaces de alta performance para productos financieros B2C. Ha liderado la adopción de design systems y arquitecturas micro-frontend en su empresa actual, reduciendo el time-to-market en un 35%. Sus contribuciones open-source demuestran un nivel técnico muy por encima del promedio del mercado.',
     location: 'Ciudad de México, MX',
+    ai_recommendation: 'advance',
   },
   {
     id: 'cand-002',
@@ -151,6 +153,7 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Carlos tiene 6 años enfocados en desarrollo frontend con énfasis en performance y calidad. Ha mejorado métricas de Core Web Vitals en aplicaciones con +5M de usuarios activos mensuales. Su enfoque en testing automatizado y accesibilidad lo convierte en un candidato con fuerte orientación a la calidad del producto.',
     location: 'Monterrey, MX',
+    ai_recommendation: 'advance',
   },
   {
     id: 'cand-003',
@@ -187,6 +190,7 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Lucía ha desarrollado su carrera principalmente como freelancer independiente, construyendo sitios y aplicaciones web para clientes de distintos sectores. Su trabajo destaca por la atención al detalle visual y las animaciones fluidas. Está lista para dar el salto a un entorno de producto más estructurado.',
     location: 'Guadalajara, MX',
+    ai_recommendation: 'test',
   },
   {
     id: 'cand-004',
@@ -224,6 +228,7 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Miguel viene de una carrera principalmente en backend (Node.js, Python) y lleva 2 años haciendo la transición a frontend. Tiene una comprensión sólida de la integración con APIs y arquitectura de datos en el cliente, pero aún está desarrollando sus habilidades en UI avanzada y diseño de sistemas de componentes.',
     location: 'Ciudad de México, MX',
+    ai_recommendation: 'interview',
   },
   {
     id: 'cand-005',
@@ -261,6 +266,7 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Valeria es una desarrolladora junior con 1.5 años de experiencia profesional y proyectos personales que demuestran pasión genuina por el frontend. Aunque su nivel actual no alcanza el rango Senior requerido, su curva de aprendizaje es positiva. Se recomienda considerar para posiciones de menor seniority en el futuro.',
     location: 'Guadalajara, MX',
+    ai_recommendation: 'hold',
   },
   {
     id: 'cand-006',
@@ -298,5 +304,6 @@ export const MOCK_CANDIDATES: CandidateWithScore[] = [
     ai_summary:
       'Roberto tiene una larga trayectoria en desarrollo web, pero su experiencia está concentrada en tecnologías legacy. No hay evidencia de adopción de frameworks modernos ni de TypeScript. Para el nivel y stack requerido por esta vacante, el perfil no es compatible en su estado actual.',
     location: 'Puebla, MX',
+    ai_recommendation: 'discard',
   },
 ];

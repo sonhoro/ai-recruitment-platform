@@ -188,6 +188,8 @@ export interface CandidateRow {
   ai_summary: string | null;
   /** AI-detected seniority level. Null until first AI evaluation. */
   seniority: 'Junior' | 'Semi-Senior' | 'Senior' | null;
+  /** AI suggestion for next step. Null until first AI evaluation. */
+  ai_recommendation: 'advance' | 'interview' | 'test' | 'hold' | 'discard' | null;
   created_at: string;
   updated_at: string;
 }
@@ -211,6 +213,8 @@ export interface CandidateInsert {
   ai_summary?: string | null;
   /** Populated by the AI pipeline after CV analysis. */
   seniority?: 'Junior' | 'Semi-Senior' | 'Senior' | null;
+  /** Set by the AI pipeline for Human-in-the-loop. */
+  ai_recommendation?: 'advance' | 'interview' | 'test' | 'hold' | 'discard' | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -233,6 +237,8 @@ export interface CandidateUpdate {
   ai_summary?: string | null;
   /** Set by the AI pipeline callback — do not update manually. */
   seniority?: 'Junior' | 'Semi-Senior' | 'Senior' | null;
+  /** Set by the AI pipeline for Human-in-the-loop. */
+  ai_recommendation?: 'advance' | 'interview' | 'test' | 'hold' | 'discard' | null;
   updated_at?: string;
 }
 

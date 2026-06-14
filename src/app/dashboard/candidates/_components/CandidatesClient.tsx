@@ -8,6 +8,7 @@ import { Search, Users, ChevronDown } from 'lucide-react'
 type Status = 'new' | 'screening' | 'interview' | 'offer' | 'hired' | 'rejected' | 'withdrawn'
 type Seniority = 'Junior' | 'Semi-Senior' | 'Senior'
 type ScoreTier = 'high' | 'mid' | 'low'
+type AiRecommendation = 'advance' | 'interview' | 'test' | 'hold' | 'discard' | null
 
 interface Candidate {
   id: string
@@ -19,6 +20,7 @@ interface Candidate {
   status: Status
   skills: string[]
   applied_at: string
+  ai_recommendation: AiRecommendation
 }
 
 // ─── Badge Helpers ────────────────────────────────────────────────────────────
@@ -63,6 +65,25 @@ function StatusBadge({ status }: { status: Status }) {
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${className}`}>
       {label}
+    </span>
+  )
+}
+
+const RECOMMENDATION_CONFIG: Record<string, { label: string; className: string }> = {
+  advance:   { label: 'AI: Avanzar',   className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+  interview: { label: 'AI: Entrevista', className: 'bg-violet-500/15 text-violet-300 border-violet-500/30' },
+  test:      { label: 'AI: Test',       className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
+  hold:      { label: 'AI: Hold',       className: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
+  discard:   { label: 'AI: Descartar',  className: 'bg-red-500/15 text-red-300 border-red-500/30' },
+}
+
+function AiRecommendationBadge({ recommendation }: { recommendation: AiRecommendation }) {
+  if (!recommendation) return null
+  const config = RECOMMENDATION_CONFIG[recommendation]
+  if (!config) return null
+  return (
+    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${config.className}`}>
+      {config.label}
     </span>
   )
 }
@@ -178,6 +199,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                 <th className="px-4 py-3">Vacante</th>
                 <th className="px-4 py-3">Seniority</th>
                 <th className="px-4 py-3 text-center">Score</th>
+                <th className="px-4 py-3">Recomendación IA</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3 whitespace-nowrap">Aplicó</th>
               </tr>
@@ -215,6 +237,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                     <td className="px-4 py-3 text-slate-300 max-w-[180px] truncate" title={c.job_title}>{c.job_title}</td>
                     <td className="px-4 py-3"><SeniorityChip seniority={c.seniority} /></td>
                     <td className="px-4 py-3 text-center"><ScoreBadge score={c.score} /></td>
+                    <td className="px-4 py-3"><AiRecommendationBadge recommendation={c.ai_recommendation} /></td>
                     <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap text-xs">{formatDate(c.applied_at)}</td>
                   </tr>
