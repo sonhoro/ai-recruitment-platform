@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import { Search, Users, ChevronDown } from 'lucide-react'
+import StageDropdown from '../../jobs/[id]/_components/StageDropdown'
+import { updateCandidateStage } from '@/app/_actions/stages'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -123,6 +125,13 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [seniorityFilter, setSeniorityFilter] = useState<string>('all')
   const [scoreTierFilter, setScoreTierFilter] = useState<string>('all')
+  const [, startTransition] = useTransition()
+
+  function handleStageChange(candidateId: string, newStatus: Status) {
+    startTransition(async () => {
+      await updateCandidateStage(candidateId, newStatus as any)
+    })
+  }
 
   const filtered = useMemo(() => {
     return candidates.filter((c) => {
@@ -238,7 +247,13 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                     <td className="px-4 py-3"><SeniorityChip seniority={c.seniority} /></td>
                     <td className="px-4 py-3 text-center"><ScoreBadge score={c.score} /></td>
                     <td className="px-4 py-3"><AiRecommendationBadge recommendation={c.ai_recommendation} /></td>
-                    <td className="px-4 py-3"><StatusBadge status={c.status} /></td>
+                    <td className="px-4 py-3">
+                      <StageDropdown
+                        candidateId={c.id}
+                        currentStatus={c.status}
+                        onStageChange={handleStageChange as any}
+                      />
+                    </td>
                     <td className="px-4 py-3 text-slate-400 whitespace-nowrap text-xs">{formatDate(c.applied_at)}</td>
                   </tr>
                 ))
