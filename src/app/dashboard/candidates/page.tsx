@@ -34,9 +34,15 @@ export default async function CandidatesPage() {
         .select('candidate_id, score')
         .in('candidate_id', candidateIds)
         .eq('stage', 'overall')
+        .order('evaluated_at', { ascending: false })
     : { data: [] }
 
-  const scoreMap = new Map((scores ?? []).map((s) => [s.candidate_id, s.score]))
+  const scoreMap = new Map();
+  for (const s of scores ?? []) {
+    if (!scoreMap.has(s.candidate_id)) {
+      scoreMap.set(s.candidate_id, s.score);
+    }
+  }
 
   const enriched = (candidates ?? []).map((c: any) => ({
     id: c.id,

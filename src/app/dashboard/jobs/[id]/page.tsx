@@ -87,12 +87,15 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         .select('*')
         .in('candidate_id', candidateIds)
         .eq('stage', 'overall')
-        .limit(1)
+        .order('evaluated_at', { ascending: false })
     : { data: [] };
 
-  const scoreByCandidate = new Map(
-    (scoreRows ?? []).map((s) => [s.candidate_id, s]),
-  );
+  const scoreByCandidate = new Map();
+  for (const s of scoreRows ?? []) {
+    if (!scoreByCandidate.has(s.candidate_id)) {
+      scoreByCandidate.set(s.candidate_id, s);
+    }
+  }
 
   const candidates: CandidateWithScore[] = (candidateRows ?? []).map((c) => {
     const sc = scoreByCandidate.get(c.id);
