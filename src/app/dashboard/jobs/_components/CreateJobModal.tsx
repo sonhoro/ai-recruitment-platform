@@ -283,6 +283,24 @@ export default function CreateJobModal({
                 </p>
               </div>
 
+              {/* Skills required */}
+              <div>
+                <label htmlFor="job-skills" className={LABEL_CLS}>
+                  Skills requeridos
+                </label>
+                <input
+                  id="job-skills"
+                  name="skills_required"
+                  type="text"
+                  disabled={isPending}
+                  placeholder="Ej: Java, Spring Boot, PostgreSQL, AWS"
+                  className={INPUT_CLS}
+                />
+                <p className="mt-1.5 text-xs text-slate-600">
+                  Separados por coma. La IA usará esta lista para evaluar a los candidatos.
+                </p>
+              </div>
+
             </form>
           </div>
 

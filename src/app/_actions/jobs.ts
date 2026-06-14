@@ -113,6 +113,11 @@ export async function createJob(
     };
   }
 
+  const skillsRaw = formData.get('skills_required')?.toString().trim() || '';
+  const skills_required = skillsRaw
+    ? skillsRaw.split(',').map((s) => s.trim()).filter(Boolean)
+    : null;
+
   const payload: JobInsert = {
     recruiter_id: recruiter.id,
     title,
@@ -122,6 +127,7 @@ export async function createJob(
     location: getString(formData, 'location'),
     employment_type: getString(formData, 'employment_type'),
     remote_policy: getString(formData, 'remote_policy'),
+    skills_required,
     status: 'open',
     published_at: new Date().toISOString(),
   };
