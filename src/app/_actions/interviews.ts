@@ -15,6 +15,7 @@ export async function updateInterview(
   data: {
     scheduled_at?: string;
     recruiter_id?: string;
+    meeting_url?: string | null;
   },
 ): Promise<UpdateInterviewResult> {
   if (!interviewId || typeof interviewId !== 'string') {
@@ -32,6 +33,7 @@ export async function updateInterview(
   const updateData: Record<string, string> = {};
   if (data.scheduled_at) updateData.scheduled_at = data.scheduled_at;
   if (data.recruiter_id) updateData.recruiter_id = data.recruiter_id;
+  if (data.meeting_url !== undefined) updateData.meeting_url = data.meeting_url ?? '';
 
   if (Object.keys(updateData).length === 0) {
     return { success: false, error: 'No hay campos para actualizar.' };
@@ -85,6 +87,63 @@ export async function completeInterview(
 
   revalidatePath('/dashboard/interviews');
   return { success: true };
+}
+
+const INVITE_TIMEOUT_MS = 10_000;
+
+export async function sendInterviewInvitation(data: {
+  candidate_name: string;
+  candidate_email: string;
+  job_title: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  meeting_url: string;
+  interviewer: string;
+}): Promise<{ sent: true } | { sent: false; reason: string }> {
+  const webhookUrl = process.env.N8N_INTERVIEW_INVITE_WEBHOOK_URL;
+
+  if (!webhookUrl) {
+    console.warn(
+      '[interviews] N8N_INTERVIEW_INVITE_WEBHOOK_URL not set. ' +
+        'Skipping invitation email.',
+    );
+    return { sent: false, reason: 'Webhook URL not configured' };
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), INVITE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'interview_invitation',
+        ...data,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => '');
+      console.error('[interviews] Invitation webhook failed:', response.status, body.slice(0, 200));
+      return { sent: false, reason: `n8n returned HTTP ${response.status}` };
+    }
+
+    return { sent: true };
+  } catch (err) {
+    clearTimeout(timeoutId);
+
+    const reason =
+      err instanceof Error && err.name === 'AbortError'
+        ? 'Webhook timed out'
+        : `Network error: ${err instanceof Error ? err.message : String(err)}`;
+
+    console.error('[interviews] Invitation dispatch error:', reason);
+    return { sent: false, reason };
+  }
 }
 
 export async function getRecruiters(): Promise<{ id: string; full_name: string }[]> {

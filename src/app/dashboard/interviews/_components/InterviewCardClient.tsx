@@ -9,7 +9,7 @@ import {
   SaveIcon,
   XIcon,
 } from 'lucide-react';
-import { updateInterview, getRecruiters, completeInterview } from '@/app/_actions/interviews';
+import { updateInterview, getRecruiters, completeInterview, sendInterviewInvitation } from '@/app/_actions/interviews';
 
 // ─── Shared type ──────────────────────────────────────────────────────────────
 
@@ -127,6 +127,8 @@ export default function InterviewCardClient({
   const [interviewerName, setInterviewerName] = useState(interview.interviewer);
   const [recruiters, setRecruiters] = useState<{ id: string; full_name: string }[]>([]);
   const [selectedRecruiterId, setSelectedRecruiterId] = useState(interview.recruiter_id ?? '');
+  const [meetLink, setMeetLink] = useState(interview.meet_link ?? '');
+  const [invitationSent, setInvitationSent] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [completeComment, setCompleteComment] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -145,15 +147,32 @@ export default function InterviewCardClient({
     setScheduledAt(interview.scheduled_at);
     setInterviewerName(interview.interviewer);
     setSelectedRecruiterId(interview.recruiter_id ?? '');
+    setMeetLink(interview.meet_link ?? '');
+    setInvitationSent(false);
     setEditing(false);
   }
 
   function handleSave() {
     startTransition(async () => {
-      await updateInterview(interview.id, {
+      const result = await updateInterview(interview.id, {
         scheduled_at: scheduledAt !== interview.scheduled_at ? new Date(scheduledAt).toISOString() : undefined,
         recruiter_id: selectedRecruiterId !== interview.recruiter_id ? selectedRecruiterId : undefined,
+        meeting_url: meetLink !== (interview.meet_link ?? '') ? (meetLink || null) : undefined,
       });
+
+      if (result.success && meetLink && !interview.meet_link) {
+        const inviteResult = await sendInterviewInvitation({
+          candidate_name: interview.candidate_name,
+          candidate_email: interview.candidate_email,
+          job_title: interview.job_title,
+          scheduled_at: scheduledAt,
+          duration_minutes: interview.duration_minutes,
+          meeting_url: meetLink,
+          interviewer: interviewerName,
+        });
+        if (inviteResult.sent) setInvitationSent(true);
+      }
+
       setEditing(false);
     });
   }
@@ -234,6 +253,39 @@ export default function InterviewCardClient({
           <span>{formatDateTime(interview.scheduled_at, interview.duration_minutes)}</span>
         )}
       </div>
+
+      {/* Meet link - editable */}
+      <div className="flex items-center gap-2 text-slate-400 text-xs">
+        <LinkIcon className="h-3.5 w-3.5 flex-shrink-0" />
+        {editing ? (
+          <input
+            type="url"
+            value={meetLink}
+            onChange={(e) => setMeetLink(e.target.value)}
+            placeholder="https://meet.google.com/..."
+            className="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+            disabled={isPending}
+          />
+        ) : interview.meet_link ? (
+          <a
+            href={interview.meet_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 truncate text-violet-400 hover:text-violet-300 underline underline-offset-2"
+          >
+            {interview.meet_link}
+          </a>
+        ) : (
+          <span className="text-slate-600">No asignado</span>
+        )}
+      </div>
+
+      {invitationSent && (
+        <p className="text-xs text-emerald-400 flex items-center gap-1">
+          <CheckCircleIcon className="h-3 w-3" />
+          Invitación enviada al candidato
+        </p>
+      )}
 
       {/* Divider */}
       <div className="h-px bg-slate-800" />

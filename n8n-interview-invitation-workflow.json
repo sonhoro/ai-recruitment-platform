@@ -1,0 +1,107 @@
+{
+  "name": "Interview Invitation Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "interview-invite",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst candidateName = item.candidate_name || \"Candidato\";\nconst candidateEmail = item.candidate_email;\nconst jobTitle = item.job_title || \"Vacante\";\nconst scheduledAt = item.scheduled_at;\nconst durationMin = item.duration_minutes || 60;\nconst meetingUrl = item.meeting_url;\nconst interviewer = item.interviewer || \"Equipo de Recruitment\";\n\nconst date = new Date(scheduledAt);\nconst weekday = date.toLocaleDateString(\"es-ES\", { weekday: \"long\" });\nconst day = date.getDate();\nconst month = date.toLocaleDateString(\"es-ES\", { month: \"long\" });\nconst year = date.getFullYear();\nconst time = date.toLocaleTimeString(\"es-ES\", { hour: \"2-digit\", minute: \"2-digit\" });\n\nconst formattedDate = weekday.charAt(0).toUpperCase() + weekday.slice(1) + \", \" + day + \" de \" + month + \" de \" + year;\nconst formattedTime = time + \" (\" + durationMin + \" min)\";\n\nvar html = \"<!DOCTYPE html><html><head><meta charset=\\\"utf-8\\\"></head><body style=\\\"font-family:Segoe UI,Arial,sans-serif;background:#f4f4f8;margin:0;padding:0;\\\">\";\nhtml += \"<table width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background:#f4f4f8;padding:40px 20px;\\\"><tr><td align=\\\"center\\\">\";\nhtml += \"<table width=\\\"560\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);\\\">\";\nhtml += \"<tr><td style=\\\"background:linear-gradient(135deg,#7c3aed,#a855f7);padding:32px 40px;text-align:center;\\\"><h1 style=\\\"color:#fff;font-size:22px;margin:0;font-weight:700;\\\">Invitación a Entrevista</h1></td></tr>\";\nhtml += \"<tr><td style=\\\"padding:32px 40px;\\\">\";\nhtml += \"<p style=\\\"color:#1e293b;font-size:16px;line-height:1.6;margin:0 0 20px 0;\\\">Hola <strong>\" + candidateName + \"</strong>,</p>\";\nhtml += \"<p style=\\\"color:#475569;font-size:15px;line-height:1.6;margin:0 0 24px 0;\\\">Nos complace invitarte a una entrevista para el puesto de <strong>\" + jobTitle + \"</strong>.</p>\";\nhtml += \"<table width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\" style=\\\"background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;margin-bottom:24px;\\\"><tr><td style=\\\"padding:20px 24px;\\\">\";\nhtml += \"<table width=\\\"100%\\\" cellpadding=\\\"0\\\" cellspacing=\\\"0\\\">\";\nhtml += \"<tr><td style=\\\"padding-bottom:12px;\\\"><span style=\\\"color:#64748b;font-size:12px;text-transform:uppercase;font-weight:600;\\\">Puesto</span><p style=\\\"color:#1e293b;font-size:15px;font-weight:600;margin:4px 0 0 0;\\\">\" + jobTitle + \"</p></td></tr>\";\nhtml += \"<tr><td style=\\\"padding-bottom:12px;\\\"><span style=\\\"color:#64748b;font-size:12px;text-transform:uppercase;font-weight:600;\\\">Fecha</span><p style=\\\"color:#1e293b;font-size:15px;font-weight:600;margin:4px 0 0 0;\\\">\" + formattedDate + \"</p></td></tr>\";\nhtml += \"<tr><td style=\\\"padding-bottom:12px;\\\"><span style=\\\"color:#64748b;font-size:12px;text-transform:uppercase;font-weight:600;\\\">Hora</span><p style=\\\"color:#1e293b;font-size:15px;font-weight:600;margin:4px 0 0 0;\\\">\" + formattedTime + \"</p></td></tr>\";\nhtml += \"<tr><td style=\\\"padding-bottom:12px;\\\"><span style=\\\"color:#64748b;font-size:12px;text-transform:uppercase;font-weight:600;\\\">Entrevistador</span><p style=\\\"color:#1e293b;font-size:15px;font-weight:600;margin:4px 0 0 0;\\\">\" + interviewer + \"</p></td></tr>\";\nhtml += \"<tr><td><span style=\\\"color:#64748b;font-size:12px;text-transform:uppercase;font-weight:600;\\\">Enlace</span><p style=\\\"margin:6px 0 0 0;\\\"><a href=\\\"\" + meetingUrl + \"\\\" style=\\\"display:inline-block;background:#7c3aed;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;\\\">Unirse a la reunión</a></p></td></tr>\";\nhtml += \"</table></td></tr></table>\";\nhtml += \"<p style=\\\"color:#475569;font-size:14px;line-height:1.6;margin:0 0 8px 0;\\\">Por favor, confirma tu asistencia respondiendo a este correo.</p>\";\nhtml += \"<p style=\\\"color:#94a3b8;font-size:13px;line-height:1.6;margin:0;\\\">Saludos cordiales,<br><strong>Equipo de Recruitment</strong></p>\";\nhtml += \"</td></tr>\";\nhtml += \"<tr><td style=\\\"background:#f8fafc;padding:20px 40px;text-align:center;border-top:1px solid #e2e8f0;\\\"><p style=\\\"color:#94a3b8;font-size:12px;margin:0;\\\">AI Recruitment Platform &mdash; Este es un mensaje automático.</p></td></tr>\";\nhtml += \"</table></td></tr></table></body></html>\";\n\nreturn [{\n  json: {\n    to: candidateEmail,\n    subject: \"Invitación a Entrevista - \" + jobTitle,\n    html: html\n  }\n}];"
+      },
+      "name": "Format Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        750,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REEMPLAZA_CON_TU_CREDENTIAL_ID",
+          "name": "Gmail Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { status: \"ok\", sent_to: $json.to } }];"
+      },
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1000,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Format Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
