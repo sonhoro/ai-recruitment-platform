@@ -70,7 +70,7 @@ function JobStatsHeader({
       {/* Job meta */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold text-violet-400 uppercase tracking-widest mb-1">
+          <p className="text-xs font-semibold text-brand-400 uppercase tracking-widest mb-1">
             {job.department}
           </p>
           <h1 className="text-2xl font-bold text-white">{job.title}</h1>
@@ -93,8 +93,8 @@ function JobStatsHeader({
             icon:  UsersIcon,
             value: candidates.length,
             label: 'Candidatos',
-            color: 'text-violet-400',
-            bg:    'bg-violet-500/10 border-violet-500/20',
+            color: 'text-brand-400',
+            bg:    'bg-brand-500/10 border-brand-500/20',
           },
           {
             icon:  BarChart3Icon,
@@ -239,7 +239,7 @@ export default function RankingList({ job, candidates }: RankingListProps) {
       {/* ── Toolbar ─────────────────────────────────────── */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         {/* Filter pills */}
-        <div className="flex items-center gap-1.5 bg-slate-800/60 rounded-xl p-1 border border-slate-700/50">
+        <div className="flex items-center gap-1.5 bg-[#191922] rounded-xl p-1 border border-[#262633]">
           <FilterIcon className="w-3.5 h-3.5 text-slate-600 ml-1.5" />
           {FILTER_OPTIONS.map((opt) => (
             <button
@@ -248,7 +248,7 @@ export default function RankingList({ job, candidates }: RankingListProps) {
               onClick={() => setScoreFilter(opt.value)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150
                 ${scoreFilter === opt.value
-                  ? 'bg-slate-700 text-white shadow-sm'
+                  ? 'bg-[#262633] text-white'
                   : `text-slate-500 hover:text-slate-300`
                 }
               `}
@@ -261,7 +261,7 @@ export default function RankingList({ job, candidates }: RankingListProps) {
         {/* Result count + pending indicator */}
         <div className="flex items-center gap-1.5 text-xs text-slate-500">
           {isPending ? (
-            <LoaderIcon className="w-3.5 h-3.5 animate-spin text-violet-400" />
+            <LoaderIcon className="w-3.5 h-3.5 animate-spin text-brand-400" />
           ) : (
             <ArrowUpDownIcon className="w-3.5 h-3.5" />
           )}
@@ -301,7 +301,7 @@ export default function RankingList({ job, candidates }: RankingListProps) {
           <button
             type="button"
             onClick={() => setScoreFilter('all')}
-            className="mt-3 text-xs text-violet-400 hover:underline"
+            className="mt-3 text-xs text-brand-400 hover:underline"
           >
             Ver todos
           </button>
@@ -323,7 +323,7 @@ export default function RankingList({ job, candidates }: RankingListProps) {
       )}
 
       {/* ── Legend ──────────────────────────────────────── */}
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-6 py-4 border-t border-slate-800">
+      <div className="mt-8 flex flex-wrap items-center justify-center gap-6 py-4 border-t border-[#1e1e2a]">
         <p className="text-xs text-slate-600 font-medium">Leyenda de scores:</p>
         {[
           { score: 92, label: '≥ 80 Excelente' },

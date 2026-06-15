@@ -54,11 +54,11 @@ export default function ApplyModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="w-full max-w-lg mx-4 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl"
+        className="w-full max-w-lg mx-4 rounded-xl border border-[#1e1e2a] bg-[#101016] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e1e2a]">
           <h2 className="text-lg font-bold text-white">Postularme</h2>
           <button
             onClick={onClose}
@@ -77,9 +77,9 @@ export default function ApplyModal({
           {step === 'confirm' && (
             <>
               {mainResumeUrl ? (
-                <div className="rounded-xl bg-slate-800/60 border border-slate-700/50 p-4">
+                <div className="rounded-xl bg-[#191922] border border-[#262633] p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                       <FileTextIcon className="w-5 h-5 text-emerald-400" />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -140,7 +140,7 @@ export default function ApplyModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-800">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#1e1e2a]">
           {(step === 'confirm' || step === 'error') && (
             <>
               <button

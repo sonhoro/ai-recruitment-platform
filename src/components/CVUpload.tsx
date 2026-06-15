@@ -80,7 +80,7 @@ function isValidPdf(file: File): string | null {
 // ─────────────────────────────────────────────────────────────
 
 const INPUT_CLS =
-  'w-full rounded-lg bg-slate-700/60 border border-slate-600/50 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors';
+  'w-full rounded-lg bg-[#262633]/60 border border-slate-600/50 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-colors';
 
 const LABEL_CLS = 'block text-xs font-medium text-slate-300 mb-1.5';
 
@@ -89,7 +89,7 @@ function ProgressBar({ value }: { value: number }) {
   return (
     <div className="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
       <div
-        className="h-full bg-gradient-to-r from-violet-500 to-indigo-500 rounded-full transition-all duration-300 ease-out"
+        className="h-full bg-brand-500 rounded-full transition-all duration-300 ease-out"
         style={{ width: `${value}%` }}
       />
     </div>
@@ -103,7 +103,7 @@ function SuccessCard({ result }: { result: UploadSuccessResponse }) {
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-3 duration-400">
       {/* Header */}
-      <div className="flex items-center gap-3 rounded-xl bg-emerald-900/30 border border-emerald-700/40 px-4 py-3.5">
+      <div className="flex items-center gap-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-4 py-3.5">
         <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex-shrink-0">
           <CheckCircle2Icon className="w-5 h-5 text-emerald-400" />
         </div>
@@ -128,7 +128,7 @@ function SuccessCard({ result }: { result: UploadSuccessResponse }) {
       </div>
 
       {/* Candidate summary */}
-      <div className="rounded-xl bg-slate-800/60 border border-slate-700/40 divide-y divide-slate-700/40">
+      <div className="rounded-xl bg-[#191922] border border-[#262633] divide-y divide-[#262633]">
         {/* Candidate info */}
         <div className="px-4 py-3.5 flex flex-wrap gap-x-6 gap-y-2">
           <div className="flex items-center gap-2 text-xs text-slate-300">
@@ -403,10 +403,10 @@ export default function CVUpload({ jobId, onSuccess, className = '' }: CVUploadP
         className={`relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-all duration-200 cursor-pointer select-none
           ${isUploading ? 'cursor-not-allowed' : 'cursor-pointer'}
           ${isDragging
-            ? 'border-violet-400 bg-violet-500/10 scale-[1.01] shadow-lg shadow-violet-500/10'
+            ? 'border-violet-400 bg-violet-500/10'
             : isSelected || isError
             ? 'border-slate-600 bg-slate-800/40'
-            : 'border-slate-700 bg-slate-800/30 hover:border-violet-500/50 hover:bg-slate-800/50'
+            : 'border-[#262633] bg-[#191922]/30 hover:border-violet-500/50 hover:bg-[#191922]/50'
           }
         `}
       >
@@ -426,8 +426,8 @@ export default function CVUpload({ jobId, onSuccess, className = '' }: CVUploadP
           <>
             <div className={`flex items-center justify-center w-14 h-14 rounded-2xl border transition-all duration-200
               ${isDragging
-                ? 'bg-violet-500/20 border-violet-400/50 scale-110'
-                : 'bg-slate-700/60 border-slate-600/50'
+                ? 'bg-violet-500/10 border-violet-400/50'
+                : 'bg-[#262633]/60 border-slate-600/50'
               }`}
             >
               <UploadCloudIcon
@@ -588,7 +588,7 @@ export default function CVUpload({ jobId, onSuccess, className = '' }: CVUploadP
           <button
             type="submit"
             disabled={isUploading}
-            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-violet-500/20"
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white rounded-xl bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
           >
             <UploadCloudIcon className="w-4 h-4" />
             Subir CV y registrar candidato

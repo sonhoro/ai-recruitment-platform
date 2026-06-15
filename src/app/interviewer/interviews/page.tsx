@@ -96,7 +96,7 @@ export default async function InterviewerInterviewsPage() {
     <div className="px-8 py-10 min-h-full">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600/20 border border-amber-500/30">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
             <CalendarIcon className="h-5 w-5 text-amber-400" />
           </div>
           <div>
@@ -122,7 +122,7 @@ export default async function InterviewerInterviewsPage() {
                   <Link
                     key={interview.id}
                     href={`/interviewer/interviews/${interview.id}`}
-                    className="rounded-2xl bg-slate-900 border border-slate-800 p-5 hover:border-amber-500/40 transition-colors block"
+                    className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-5 hover:border-amber-500/30 transition-colors block"
                   >
                     <div className="flex items-start justify-between gap-3 mb-3">
                       <div className="flex items-center gap-3">
@@ -178,7 +178,7 @@ export default async function InterviewerInterviewsPage() {
                   <Link
                     key={interview.id}
                     href={`/interviewer/interviews/${interview.id}`}
-                    className="flex items-center justify-between gap-4 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
+                    className="flex items-center justify-between gap-4 py-3 px-4 rounded-xl border border-[#1e1e2a] bg-[#101016] hover:border-[#262633] transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
@@ -209,7 +209,7 @@ export default async function InterviewerInterviewsPage() {
 
         {interviews.length === 0 && (
           <div className="text-center py-16">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-800 flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 rounded-xl bg-[#191922] flex items-center justify-center mb-4">
               <CalendarIcon className="w-8 h-8 text-slate-600" />
             </div>
             <h2 className="text-xl font-bold text-white mb-2">No tienes entrevistas asignadas</h2>

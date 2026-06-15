@@ -30,7 +30,7 @@ export default function FeedbackForm({ interviewId }: { interviewId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-6">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-6 space-y-6">
       <h2 className="text-base font-bold text-white flex items-center gap-2">
         <StarIcon className="w-5 h-5 text-amber-400" />
         Enviar feedback
@@ -110,7 +110,7 @@ export default function FeedbackForm({ interviewId }: { interviewId: string }) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 py-2.5 px-4 text-sm font-semibold text-white shadow-lg shadow-amber-500/25 transition hover:bg-amber-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-600 py-2.5 px-4 text-sm font-semibold text-white transition hover:bg-amber-500 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isPending ? (
           <>

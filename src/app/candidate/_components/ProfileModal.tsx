@@ -88,11 +88,11 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
     >
-      <div className="relative w-full max-w-md mx-4 rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="relative w-full max-w-md mx-4 rounded-xl border border-[#262633] bg-[#101016] shadow-2xl shadow-black/50 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e1e2a]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
               <UserIcon className="w-4 h-4 text-emerald-400" />
             </div>
             <h2 className="text-lg font-semibold text-white">Mi perfil</h2>
@@ -103,7 +103,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-800">
+        <div className="flex border-b border-[#1e1e2a]">
           <button
             onClick={() => setActiveTab('profile')}
             className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors relative ${
@@ -139,9 +139,9 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
               <div className="flex flex-col items-center gap-3">
                 <div className="relative">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover ring-2 ring-emerald-500/20" />
+                    <img src={avatarUrl} alt="" className="w-20 h-20 rounded-full object-cover" />
                   ) : (
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center ring-2 ring-emerald-500/20">
+                    <div className="w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center">
                       <UserIcon className="w-8 h-8 text-white" />
                     </div>
                   )}
@@ -149,7 +149,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                     type="button"
                     onClick={() => avatarInputRef.current?.click()}
                     disabled={avatarUploading}
-                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center ring-2 ring-slate-900 hover:bg-emerald-500 transition-colors disabled:opacity-60"
+                    className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-emerald-600 flex items-center justify-center hover:bg-emerald-500 transition-colors disabled:opacity-60"
                     title="Cambiar foto"
                   >
                     {avatarUploading ? (
@@ -200,7 +200,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                           type={key === 'phone' ? 'tel' : 'url'}
                           placeholder={placeholder}
                           autoFocus
-                          className="w-full rounded-xl border border-emerald-500/50 bg-slate-800 py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                          className="w-full rounded-xl border border-emerald-500/50 bg-[#191922] py-2.5 pl-10 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
                         />
                       ) : (
                         <div
@@ -211,7 +211,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                               setTimeout(() => setCopiedField(null), 1500);
                             }
                           }}
-                          className="w-full rounded-xl border border-transparent bg-slate-800/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate hover:border-slate-600 transition-colors cursor-pointer relative overflow-hidden"
+                          className="w-full rounded-xl border border-transparent bg-[#191922]/50 py-2.5 pl-10 pr-4 text-sm text-slate-300 truncate hover:border-slate-600 transition-colors cursor-pointer relative overflow-hidden"
                           title={value || undefined}
                         >
                           {value ? (
@@ -265,7 +265,7 @@ export default function ProfileModal({ open, onClose, initialPhone, initialLinke
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {saving ? (
                     <><LoaderIcon className="w-4 h-4 animate-spin" /> Guardando…</>
@@ -308,7 +308,7 @@ function PasswordForm() {
             placeholder="••••••••"
             required
             disabled={isPending}
-            className="w-full rounded-xl border border-slate-700 bg-slate-800 py-2.5 pl-10 pr-11 text-sm text-slate-100 placeholder-slate-600 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
+            className="w-full rounded-xl border border-slate-700 bg-[#191922] py-2.5 pl-10 pr-11 text-sm text-slate-100 placeholder-slate-600 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
           />
           <button
             type="button"
@@ -336,7 +336,7 @@ function PasswordForm() {
             required
             minLength={6}
             disabled={isPending}
-            className="w-full rounded-xl border border-slate-700 bg-slate-800 py-2.5 pl-10 pr-11 text-sm text-slate-100 placeholder-slate-600 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
+            className="w-full rounded-xl border border-slate-700 bg-[#191922] py-2.5 pl-10 pr-11 text-sm text-slate-100 placeholder-slate-600 transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-50"
           />
           <button
             type="button"
@@ -366,7 +366,9 @@ function PasswordForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed"
+
+
       >
         {isPending ? (
           <><LoaderIcon className="w-4 h-4 animate-spin" /> Cambiando…</>

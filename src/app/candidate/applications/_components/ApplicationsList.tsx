@@ -72,8 +72,8 @@ function CvViewerModal({ resumeUrl, onClose }: { resumeUrl: string; onClose: () 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative w-full max-w-3xl h-[85vh] rounded-2xl bg-slate-900 border border-slate-700 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+      <div className="relative w-full max-w-3xl h-[85vh] rounded-xl bg-[#101016] border border-[#262633] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#1e1e2a]">
           <h3 className="text-sm font-medium text-white">Vista previa del CV</h3>
           <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
             <XIcon className="w-4 h-4" />
@@ -136,7 +136,7 @@ function UploadCvModal({
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <form
         onSubmit={handleSubmit}
-        className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-700 p-6 space-y-5"
+        className="relative w-full max-w-lg rounded-xl bg-[#101016] border border-[#262633] p-6 space-y-5"
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-white">Actualizar CV</h3>
@@ -161,7 +161,7 @@ function UploadCvModal({
           }}
           onClick={() => inputRef.current?.click()}
           className={`relative cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-all ${
-            dragOver ? 'border-emerald-400 bg-emerald-500/10' : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
+            dragOver ? 'border-emerald-400 bg-emerald-500/10' : 'border-[#262633] bg-[#191922] hover:border-slate-600'
           }`}
         >
           <input
@@ -234,7 +234,7 @@ export default function ApplicationsList({ applications }: ApplicationsListProps
           return (
             <div
               key={app.id}
-              className="rounded-2xl bg-slate-900 border border-slate-800 p-5 hover:border-emerald-500/40 transition-colors"
+              className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-5 hover:border-emerald-500/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-4 mb-3">
                 <div>
@@ -275,7 +275,7 @@ export default function ApplicationsList({ applications }: ApplicationsListProps
                 {app.resume_url && (
                   <button
                     onClick={() => setViewCvUrl(app.resume_url!)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#191922] hover:bg-[#262633] text-slate-300 text-xs font-medium transition-colors"
                   >
                     <FileTextIcon className="w-3.5 h-3.5" />
                     Ver CV

@@ -50,9 +50,9 @@ const STAGE_OPTIONS: StageOption[] = [
     value: 'interview',
     label: 'Entrevista',
     icon:  BrainIcon,
-    color: 'text-violet-300',
-    bg:    'bg-violet-500/10',
-    ring:  'ring-violet-500/30',
+    color: 'text-brand-300',
+    bg:    'bg-brand-500/10',
+    ring:  'ring-brand-500/30',
   },
   {
     value: 'offer',
@@ -96,7 +96,7 @@ function findStage(value: CandidateStatus): StageOption {
       label:  'Nuevo',
       icon:   CodeIcon,
       color:  'text-slate-300',
-      bg:     'bg-slate-700/30',
+      bg:     'bg-[#262633]',
       ring:   'ring-slate-600/30',
     }
   );
@@ -157,9 +157,8 @@ export default function StageDropdown({
         aria-expanded={isOpen}
         className={`
           inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold
-          ring-1 transition-all duration-150
+          ring-1 transition-colors duration-150
           ${currentStage.color} ${currentStage.bg} ${currentStage.ring}
-          hover:brightness-110 hover:scale-[1.02]
         `}
       >
         <CurrentIcon className="w-3 h-3 flex-shrink-0" />
@@ -174,9 +173,9 @@ export default function StageDropdown({
         <div
           role="listbox"
           aria-label="Cambiar etapa del candidato"
-          className="absolute right-0 top-full mt-2 z-30 w-48 rounded-xl bg-slate-800 border border-slate-700/60 shadow-2xl shadow-black/40 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
+          className="absolute right-0 top-full mt-2 z-30 w-48 rounded-xl bg-[#191922] border border-[#262633] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150"
         >
-          <div className="px-3 py-2 border-b border-slate-700/60">
+          <div className="px-3 py-2 border-b border-[#262633]">
             <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
               Cambiar Etapa
             </p>
@@ -199,7 +198,7 @@ export default function StageDropdown({
                       transition-colors duration-100
                       ${isCurrent
                         ? `${stage.color} ${stage.bg} font-semibold`
-                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                        : 'text-slate-400 hover:text-white hover:bg-[#262633]/50'
                       }
                     `}
                   >

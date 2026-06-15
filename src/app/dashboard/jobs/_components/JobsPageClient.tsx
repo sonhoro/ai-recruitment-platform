@@ -96,10 +96,10 @@ function StatsBar({ jobs }: { jobs: JobWithCount[] }) {
       {stats.map(({ label, value, icon: Icon }) => (
         <div
           key={label}
-          className="flex items-center gap-4 rounded-xl bg-slate-800/50 border border-slate-700/40 px-5 py-4"
+          className="flex items-center gap-4 rounded-xl bg-[#191922] border border-[#262633] px-5 py-4"
         >
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-violet-500/10 border border-violet-500/20 flex-shrink-0">
-            <Icon className="w-5 h-5 text-violet-400" />
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex-shrink-0">
+            <Icon className="w-5 h-5 text-brand-400" />
           </div>
           <div>
             <p className="text-2xl font-bold text-white">{value}</p>
@@ -118,8 +118,8 @@ function StatsBar({ jobs }: { jobs: JobWithCount[] }) {
 function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-500/20 mb-5">
-        <BriefcaseIcon className="w-7 h-7 text-violet-400" />
+      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-500/10 border border-brand-500/20 mb-5">
+        <BriefcaseIcon className="w-7 h-7 text-brand-400" />
       </div>
       <h3 className="text-lg font-semibold text-white mb-2">
         Sin vacantes publicadas
@@ -130,7 +130,7 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
       </p>
       <button
         onClick={onCreateClick}
-        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 transition-all duration-150 shadow-lg shadow-violet-500/20"
+        className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-xl bg-brand-600 hover:bg-brand-500"
       >
         <PlusIcon className="w-4 h-4" />
         Crear primera vacante
@@ -189,7 +189,7 @@ export default function JobsPageClient({ initialJobs }: JobsPageClientProps) {
         <button
           onClick={() => setIsModalOpen(true)}
           id="btn-create-job"
-          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-950 transition-all duration-150 shadow-lg shadow-violet-500/20"
+          className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white rounded-xl bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-[#08080e]"
         >
           <PlusIcon className="w-4 h-4" />
           Nueva Vacante

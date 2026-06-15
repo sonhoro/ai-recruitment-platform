@@ -34,7 +34,7 @@ interface Candidate {
 const STATUS_CONFIG: Record<Status, { label: string; className: string }> = {
   new:       { label: 'Nuevo',       className: 'bg-slate-500/15 text-slate-300 border-slate-500/30' },
   screening: { label: 'Screening',   className: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
-  interview: { label: 'Entrevista',  className: 'bg-violet-500/15 text-violet-300 border-violet-500/30' },
+  interview: { label: 'Entrevista',  className: 'bg-brand-500/10 text-brand-300 border-brand-500/20' },
   offer:     { label: 'Oferta',      className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   hired:     { label: 'Contratado',  className: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
   rejected:  { label: 'Rechazado',   className: 'bg-red-500/15 text-red-300 border-red-500/30' },
@@ -44,7 +44,7 @@ const STATUS_CONFIG: Record<Status, { label: string; className: string }> = {
 const SENIORITY_CONFIG: Record<Seniority, string> = {
   'Junior':      'bg-slate-500/15 text-slate-300 border-slate-500/30',
   'Semi-Senior': 'bg-sky-500/15 text-sky-300 border-sky-500/30',
-  'Senior':      'bg-violet-500/15 text-violet-300 border-violet-500/30',
+  'Senior':      'bg-brand-500/10 text-brand-300 border-brand-500/20',
 }
 
 function scoreTierOf(score: number): ScoreTier {
@@ -77,7 +77,7 @@ function StatusBadge({ status }: { status: Status }) {
 
 const RECOMMENDATION_CONFIG: Record<string, { label: string; className: string }> = {
   advance:   { label: 'AI: Avanzar',   className: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
-  interview: { label: 'AI: Entrevista', className: 'bg-violet-500/15 text-violet-300 border-violet-500/30' },
+  interview: { label: 'AI: Entrevista', className: 'bg-brand-500/10 text-brand-300 border-brand-500/20' },
   test:      { label: 'AI: Test',       className: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
   hold:      { label: 'AI: Hold',       className: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
   discard:   { label: 'AI: Descartar',  className: 'bg-red-500/15 text-red-300 border-red-500/30' },
@@ -113,7 +113,7 @@ function DarkSelect({
         id={id}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 pr-8 text-sm text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50 cursor-pointer"
+        className="appearance-none rounded-lg border border-[#262633] bg-[#191922] px-3 py-2 pr-8 text-sm text-slate-200 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/50 cursor-pointer"
       >
         {children}
       </select>
@@ -153,13 +153,13 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
     new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8 space-y-6">
+    <div className="min-h-screen bg-[#08080e] text-slate-100 p-6 md:p-8 space-y-6">
 
       {/* ── Header ── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-bold tracking-tight text-white">Candidatos</h1>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-800 px-2.5 py-0.5 text-xs font-medium text-slate-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#262633] bg-[#191922] px-2.5 py-0.5 text-xs font-medium text-slate-300">
             <Users size={12} />
             {candidates.length}
           </span>
@@ -172,7 +172,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
             placeholder="Buscar por nombre o email…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border border-slate-700 bg-slate-800 py-2 pl-9 pr-3 text-sm text-slate-200 placeholder-slate-500 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+            className="w-full rounded-lg border border-[#262633] bg-[#191922] py-2 pl-9 pr-3 text-sm text-slate-200 placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/50"
           />
         </div>
       </div>
@@ -203,10 +203,10 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
       </div>
 
       {/* ── Table ── */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 overflow-hidden">
+      <div className="rounded-xl border border-[#1e1e2a] bg-[#101016] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="border-b border-slate-800">
+            <thead className="border-b border-[#1e1e2a]">
               <tr className="text-left text-xs font-medium uppercase tracking-wider text-slate-500">
                 <th className="px-4 py-3 w-10">#</th>
                 <th className="px-4 py-3">Candidato</th>
@@ -218,12 +218,12 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                 <th className="px-4 py-3 whitespace-nowrap">Aplicó</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-[#1e1e2a]/60">
               {filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
                     <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-800 text-slate-500">
+                      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#191922] text-slate-500">
                         <Users size={24} />
                       </span>
                       <div>
@@ -237,7 +237,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                 filtered.map((c, idx) => (
                   <tr
                     key={c.id}
-                    className="group hover:bg-slate-800/40 transition-colors"
+                    className="group hover:bg-[#191922]/40 transition-colors"
                   >
                     <td className="px-4 py-3 text-slate-500 tabular-nums">{idx + 1}</td>
                     <td
@@ -245,7 +245,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                       onClick={() => setSelectedCandidate(c)}
                     >
                       <span className="flex items-center gap-3">
-                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-xs font-bold text-violet-300 select-none">
+                        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-bold text-white select-none">
                           {c.full_name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
                         </span>
                         <span className="min-w-0">
@@ -272,7 +272,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
             </tbody>
           </table>
         </div>
-        <div className="border-t border-slate-800 px-4 py-3">
+        <div className="border-t border-[#1e1e2a] px-4 py-3">
           <p className="text-xs text-slate-500">
             Mostrando <span className="font-semibold text-slate-300">{filtered.length}</span> de{' '}
             <span className="font-semibold text-slate-300">{candidates.length}</span> candidatos

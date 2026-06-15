@@ -119,13 +119,13 @@ export default async function InterviewsPage() {
   }).length
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 sm:px-8">
+    <main className="min-h-screen bg-[#08080e] px-4 py-8 sm:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
         {/* ── Header ── */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600/20 border border-violet-500/30">
-              <CalendarIcon className="h-5 w-5 text-violet-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/10 border border-brand-500/20">
+              <CalendarIcon className="h-5 w-5 text-brand-400" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Entrevistas</h1>
@@ -162,12 +162,12 @@ export default async function InterviewsPage() {
           <StatChip
             label="Completadas"
             value={completedCount}
-            color="bg-slate-700/40 border-slate-600/30 text-slate-300"
+            color="bg-[#262633] border-slate-600/30 text-slate-300"
           />
           <StatChip
             label="Esta semana"
             value={thisWeek}
-            color="bg-violet-500/10 border-violet-500/30 text-violet-300"
+            color="bg-brand-500/10 border-brand-500/20 text-brand-300"
           />
         </div>
 
@@ -197,10 +197,10 @@ export default async function InterviewsPage() {
               {completed.map((interview) => (
                 <div
                   key={interview.id}
-                  className="flex items-center justify-between gap-4 py-3 px-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-colors"
+                  className="flex items-center justify-between gap-4 py-3 px-4 rounded-xl bg-[#101016] border border-[#1e1e2a] hover:border-[#262633] transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
+                    <div className="h-8 w-8 rounded-full bg-[#191922] flex items-center justify-center flex-shrink-0">
                       <UserIcon className="h-4 w-4 text-slate-400" />
                     </div>
                     <div className="min-w-0">

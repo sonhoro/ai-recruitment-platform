@@ -81,13 +81,13 @@ export default function CandidateDetailModal({
         aria-labelledby="candidate-detail-title"
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-2xl bg-slate-900 border border-slate-700/60 shadow-2xl shadow-black/40 overflow-hidden">
+        <div className="relative w-full max-w-lg max-h-[90vh] flex flex-col rounded-xl bg-[#101016] border border-[#1e1e2a] overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 flex-shrink-0">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#1e1e2a] flex-shrink-0">
             <div className="flex items-center gap-3">
               <div
-                className={`flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${gradient} text-white text-sm font-bold select-none`}
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-brand-500 text-white text-sm font-bold select-none"
               >
                 {getInitials(candidate.full_name)}
               </div>
@@ -104,7 +104,7 @@ export default function CandidateDetailModal({
               type="button"
               onClick={onClose}
               aria-label="Cerrar modal"
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-[#191922] transition-colors"
             >
               <XIcon className="w-4 h-4" />
             </button>
@@ -119,7 +119,7 @@ export default function CandidateDetailModal({
                 <MailIcon className="w-4 h-4 text-slate-500 flex-shrink-0" />
                 <a
                   href={`mailto:${candidate.email}`}
-                  className="text-violet-400 hover:text-violet-300 transition-colors truncate"
+                  className="text-brand-400 hover:text-brand-300 transition-colors truncate"
                 >
                   {candidate.email}
                 </a>
@@ -152,7 +152,7 @@ export default function CandidateDetailModal({
             {/* Professional Summary */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <SparklesIcon className="w-4 h-4 text-violet-400" />
+                <SparklesIcon className="w-4 h-4 text-brand-400" />
                 <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Resumen Profesional
                 </h3>
@@ -161,7 +161,7 @@ export default function CandidateDetailModal({
                     href={candidate.resume_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-auto flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors"
+                    className="ml-auto flex items-center gap-1 text-xs text-slate-500 hover:text-brand-400 transition-colors"
                   >
                     <ExternalLinkIcon className="w-3 h-3" />
                     Ver CV
@@ -176,7 +176,7 @@ export default function CandidateDetailModal({
             {/* Skills */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <TagIcon className="w-4 h-4 text-violet-400" />
+                <TagIcon className="w-4 h-4 text-brand-400" />
                 <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Habilidades y Tecnologías
                 </h3>
@@ -186,7 +186,7 @@ export default function CandidateDetailModal({
                   {candidate.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center rounded-full px-3 py-1 text-xs bg-slate-700/60 text-slate-300 border border-slate-600/50"
+                      className="inline-flex items-center rounded-full px-3 py-1 text-xs bg-[#262633] text-slate-300 border border-slate-600/50"
                     >
                       {skill}
                     </span>
@@ -201,11 +201,11 @@ export default function CandidateDetailModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end px-6 py-4 border-t border-slate-800 bg-slate-900/80 flex-shrink-0">
+          <div className="flex items-center justify-end px-6 py-4 border-t border-[#1e1e2a] bg-[#101016]/80 flex-shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg hover:bg-[#191922] transition-colors"
             >
               Cerrar
             </button>

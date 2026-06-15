@@ -66,14 +66,14 @@ export default function JobCard({ job, onViewClick }: JobCardProps) {
   const status = STATUS_STYLES[job.status] ?? STATUS_STYLES.draft;
 
   return (
-    <article className="group relative flex flex-col gap-4 rounded-xl bg-slate-800/60 border border-slate-700/50 p-5 hover:border-violet-500/40 hover:bg-slate-800 transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/5">
+    <article className="group relative flex flex-col gap-4 rounded-xl bg-[#191922] border border-[#262633] p-5 hover:border-brand-500/30 hover:bg-[#191922] transition-all duration-200">
 
       {/* Top row: title + status badge */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3 min-w-0">
           {/* Icon */}
-          <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 group-hover:bg-violet-500/20 transition-colors">
-            <BriefcaseIcon className="w-4 h-4 text-violet-400" />
+          <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 transition-colors">
+            <BriefcaseIcon className="w-4 h-4 text-brand-400" />
           </div>
           {/* Title + department */}
           <div className="min-w-0">
@@ -117,14 +117,14 @@ export default function JobCard({ job, onViewClick }: JobCardProps) {
       </div>
 
       {/* Divider */}
-      <hr className="border-slate-700/60" />
+      <hr className="border-[#262633]" />
 
       {/* Bottom row: candidate count + date + action */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           {/* Candidate count */}
           <div className="flex items-center gap-1.5">
-            <UsersIcon className="w-4 h-4 text-violet-400" />
+            <UsersIcon className="w-4 h-4 text-brand-400" />
             <span className="text-sm font-semibold text-white">
               {job.candidate_count}
             </span>
@@ -144,7 +144,7 @@ export default function JobCard({ job, onViewClick }: JobCardProps) {
         {/* Action button */}
         <button
           onClick={() => onViewClick(job.id)}
-          className="text-xs font-medium text-violet-400 hover:text-violet-300 hover:underline underline-offset-2 transition-colors"
+          className="text-xs font-medium text-brand-400 hover:text-brand-300 hover:underline underline-offset-2 transition-colors"
         >
           Ver candidatos →
         </button>

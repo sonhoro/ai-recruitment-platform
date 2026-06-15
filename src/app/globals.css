@@ -7,22 +7,32 @@
 @theme inline {
   --font-sans: 'Inter', system-ui, sans-serif;
 
-  /* Brand violet palette */
-  --color-brand-50:  #f5f3ff;
-  --color-brand-100: #ede9fe;
-  --color-brand-200: #ddd6fe;
-  --color-brand-300: #c4b5fd;
-  --color-brand-400: #a78bfa;
-  --color-brand-500: #8b5cf6;
-  --color-brand-600: #7c3aed;
-  --color-brand-700: #6d28d9;
-  --color-brand-800: #5b21b6;
-  --color-brand-900: #4c1d95;
+  /* Unified brand palette — refined corporate blue */
+  --color-brand-50:  #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
 
-  /* App background tokens */
-  --color-background: #0a0a0f;
-  --color-surface:    #111118;
-  --color-surface-2:  #1a1a24;
+  /* Extended accent palettes */
+  --color-accent-blue:    #3b82f6;
+  --color-accent-teal:    #14b8a6;
+  --color-accent-amber:   #f59e0b;
+
+  /* App surface tokens */
+  --color-bg:           #08080e;
+  --color-surface:      #101016;
+  --color-surface-2:    #191922;
+  --color-border:       #1e1e2a;
+  --color-border-light: #262633;
+  --color-text-primary:   #f1f1f5;
+  --color-text-secondary: #8b8b9e;
+  --color-text-muted:     #5c5c70;
 }
 
 /* ── Base reset ───────────────────────────────────────────────── */
@@ -38,33 +48,40 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background-color: #0a0a0f;
+  background-color: #08080e;
   color: #f1f1f5;
   min-height: 100dvh;
 }
 
-/* ── Scrollbar (dark theme) ───────────────────────────────────── */
-::-webkit-scrollbar       { width: 5px; height: 5px; }
+/* ── Scrollbar (refined dark) ─────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.35);
+  background: rgba(59, 130, 246, 0.25);
   border-radius: 999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.55); }
+::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.4); }
 
 /* ── Text selection ───────────────────────────────────────────── */
 ::selection {
-  background: rgba(124, 58, 237, 0.3);
+  background: rgba(59, 130, 246, 0.2);
   color: #f1f1f5;
 }
 
 /* ── Focus ring ───────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #a78bfa;
+  outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
 
-/* ── Animate-in utilities (dropdowns / accordions) ────────────── */
+/* ── Utility: horizontal rule ─────────────────────────────────── */
+hr.divider {
+  border: none;
+  height: 1px;
+  background: #1e1e2a;
+}
+
+/* ── Animate-in utilities ─────────────────────────────────────── */
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }

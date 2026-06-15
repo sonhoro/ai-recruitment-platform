@@ -48,7 +48,7 @@ export default function JobsList({ jobs, mainResumeUrl, appliedJobIds }: JobsLis
         {jobs.map((job: JobRow) => (
           <article
             key={job.id}
-            className="rounded-2xl bg-slate-900 border border-slate-800 p-5 hover:border-emerald-500/40 transition-all"
+            className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-5 hover:border-emerald-500/30 transition-all"
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">

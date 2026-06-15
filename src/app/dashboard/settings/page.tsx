@@ -42,7 +42,7 @@ function SectionCard({
   className?: string
 }) {
   return (
-    <div className={`rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-4 ${className}`}>
+    <div className={`rounded-xl bg-[#101016] border border-[#1e1e2a] p-6 space-y-4 ${className}`}>
       {children}
     </div>
   )
@@ -67,12 +67,12 @@ function EnvRow({
   const configured = alwaysMask ? true : value !== null
 
   return (
-    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-slate-800 last:border-0">
+    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-[#1e1e2a] last:border-0">
       <span className="text-xs font-mono text-slate-400 flex-shrink-0">{label}</span>
       <span
         className={`text-xs font-mono px-2 py-0.5 rounded-md ${
           configured
-            ? 'bg-slate-800 text-slate-200'
+            ? 'bg-[#191922] text-slate-200'
             : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
         }`}
       >
@@ -111,7 +111,7 @@ function StatusPill({
 function N8nFlowDiagram() {
   const steps = [
     { label: 'Upload', color: 'bg-sky-500/20 text-sky-300 border-sky-500/30' },
-    { label: 'n8n', color: 'bg-violet-500/20 text-violet-300 border-violet-500/30' },
+    { label: 'n8n', color: 'bg-brand-500/10 text-brand-300 border-brand-500/20' },
     { label: 'Claude', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
     { label: 'Callback', color: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30' },
     { label: 'Notificación', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
@@ -148,8 +148,8 @@ function GuideStep({
 }) {
   return (
     <div className="flex gap-4">
-      <div className="flex-shrink-0 h-7 w-7 rounded-full bg-violet-600/20 border border-violet-500/30 flex items-center justify-center">
-        <span className="text-xs font-bold text-violet-300">{number}</span>
+      <div className="flex-shrink-0 h-7 w-7 rounded-full bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
+        <span className="text-xs font-bold text-brand-300">{number}</span>
       </div>
       <div className="space-y-0.5 pt-0.5">
         <p className="text-sm font-semibold text-white">{title}</p>
@@ -159,7 +159,7 @@ function GuideStep({
             href={link.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 transition-colors mt-0.5"
+            className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 transition-colors mt-0.5"
           >
             {link.label} ↗
           </a>
@@ -206,13 +206,13 @@ export default function SettingsPage() {
   const maskedGemini = maskSecret(geminiKey)
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-8 sm:px-8">
+    <main className="min-h-screen bg-[#08080e] px-4 py-8 sm:px-8">
       <div className="mx-auto max-w-3xl space-y-8">
 
         {/* ── Header ── */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600/20 border border-violet-500/30">
-            <SettingsIcon className="h-5 w-5 text-violet-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/10 border border-brand-500/20">
+            <SettingsIcon className="h-5 w-5 text-brand-400" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">Configuración</h1>
@@ -235,10 +235,10 @@ export default function SettingsPage() {
             <EnvRow label="SUPABASE_SERVICE_ROLE_KEY" value={maskedServiceKey} />
           </div>
 
-          <div className="rounded-lg bg-slate-800/60 border border-slate-700 px-4 py-3">
-            <p className="text-xs text-slate-400">
-              💡 Configura estas variables en tu archivo{' '}
-              <code className="font-mono text-violet-300">.env.local</code>
+            <div className="rounded-lg bg-[#191922] border border-[#262633] px-4 py-3">
+              <p className="text-xs text-slate-400">
+                💡 Configura estas variables en tu archivo{' '}
+                <code className="font-mono text-brand-300">.env.local</code>
             </p>
           </div>
         </SectionCard>
@@ -248,25 +248,25 @@ export default function SettingsPage() {
           <SectionTitle>⚡ n8n Webhooks</SectionTitle>
 
           <div className="space-y-0">
-            <div className="flex items-center justify-between gap-4 py-2.5 border-b border-slate-800">
+            <div className="flex items-center justify-between gap-4 py-2.5 border-b border-[#1e1e2a]">
               <span className="text-xs font-mono text-slate-400">N8N_WEBHOOK_URL</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-200">
+                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#191922] text-slate-200">
                   {n8nWebhookDisplay ?? 'No configurado'}
                 </span>
                 <StatusPill ok={n8nWebhookOk} okLabel="OK" failLabel="No configurado" />
               </div>
             </div>
-            <div className="flex items-center justify-between gap-4 py-2.5 border-b border-slate-800">
+            <div className="flex items-center justify-between gap-4 py-2.5 border-b border-[#1e1e2a]">
               <span className="text-xs font-mono text-slate-400">N8N_CALLBACK_SECRET</span>
-              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-200">
+              <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#191922] text-slate-200">
                 ••••••••
               </span>
             </div>
             <div className="flex items-center justify-between gap-4 py-2.5">
               <span className="text-xs font-mono text-slate-400">N8N_NOTIFICATIONS_WEBHOOK_URL</span>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-slate-800 text-slate-200">
+                <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#191922] text-slate-200">
                   {n8nNotifDisplay ?? 'No configurado'}
                 </span>
                 <StatusPill ok={n8nNotifOk} okLabel="OK" failLabel="No configurado" />
@@ -275,7 +275,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Flow diagram */}
-          <div className="rounded-lg bg-slate-800/60 border border-slate-700 px-4 py-3 space-y-2">
+            <div className="rounded-lg bg-[#191922] border border-[#262633] px-4 py-3 space-y-2">
             <p className="text-xs font-semibold text-slate-400">Flujo de procesamiento</p>
             <N8nFlowDiagram />
           </div>

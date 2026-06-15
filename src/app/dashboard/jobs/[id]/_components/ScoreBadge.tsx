@@ -36,21 +36,21 @@ const TIER_STYLES: Record<
   }
 > = {
   high: {
-    ring:       'ring-emerald-500/60',
+    ring:       'ring-emerald-500/30',
     text:       'text-emerald-300',
     bg:         'bg-emerald-500/10',
     label:      'Excelente',
     labelColor: 'text-emerald-500',
   },
   mid: {
-    ring:       'ring-amber-500/60',
+    ring:       'ring-amber-500/30',
     text:       'text-amber-300',
     bg:         'bg-amber-500/10',
     label:      'Moderado',
     labelColor: 'text-amber-500',
   },
   low: {
-    ring:       'ring-red-500/60',
+    ring:       'ring-red-500/30',
     text:       'text-red-300',
     bg:         'bg-red-500/10',
     label:      'Bajo',
@@ -68,7 +68,7 @@ export default function ScoreBadge({ score, size = 'md' }: ScoreBadgeProps) {
     <div className="flex flex-col items-center gap-1">
       <div
         className={`
-          flex items-center justify-center rounded-full font-bold ring-2
+          flex items-center justify-center rounded-full font-bold ring-1
           ${styles.ring} ${styles.text} ${styles.bg}
           ${isSmall ? 'w-10 h-10 text-sm' : 'w-12 h-12 text-base'}
         `}

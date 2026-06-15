@@ -83,7 +83,7 @@ export default async function InterviewDetailPage({
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-600/20 border border-amber-500/30">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
             <CalendarIcon className="h-5 w-5 text-amber-400" />
           </div>
           <div>
@@ -95,9 +95,9 @@ export default async function InterviewDetailPage({
         </div>
 
         {/* Interview info */}
-        <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+          <div className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-6 space-y-4">
           <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
+            <div className="h-12 w-12 rounded-full bg-[#191922] flex items-center justify-center flex-shrink-0">
               <UserIcon className="h-6 w-6 text-slate-400" />
             </div>
             <div>
@@ -107,7 +107,7 @@ export default async function InterviewDetailPage({
             </div>
           </div>
 
-          <div className="h-px bg-slate-800" />
+          <div className="h-px bg-[#1e1e2a]" />
 
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="space-y-1">
@@ -146,7 +146,7 @@ export default async function InterviewDetailPage({
 
         {/* Existing feedback display */}
         {hasFeedback && (
-          <div className="rounded-2xl bg-slate-900 border border-slate-800 p-6 space-y-4">
+        <div className="rounded-xl border border-[#1e1e2a] bg-[#101016] p-6 space-y-4">
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <CheckCircleIcon className="w-5 h-5 text-emerald-400" />
               Feedback enviado
@@ -180,7 +180,7 @@ export default async function InterviewDetailPage({
 
             <div className="space-y-1">
               <p className="text-xs text-slate-500 uppercase tracking-wider">Notas</p>
-              <p className="text-sm text-slate-300 bg-slate-800 rounded-lg px-4 py-3">{interview.feedback}</p>
+              <p className="text-sm text-slate-300 bg-[#191922] rounded-lg px-4 py-3">{interview.feedback}</p>
             </div>
 
             {interview.feedback_submitted_at && (

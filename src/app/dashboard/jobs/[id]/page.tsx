@@ -49,7 +49,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
         <nav className="mb-7">
           <Link
             href="/dashboard/jobs"
-            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-violet-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors"
           >
             <ArrowLeftIcon className="w-3.5 h-3.5" />
             Volver a Vacantes
@@ -139,7 +139,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
       <nav className="mb-7" aria-label="Breadcrumb">
         <Link
           href="/dashboard/jobs"
-          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-violet-400 transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-brand-400 transition-colors"
         >
           <ArrowLeftIcon className="w-3.5 h-3.5" />
           Volver a Vacantes

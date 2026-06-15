@@ -98,7 +98,7 @@ function RankBadge({ rank }: { rank: number }) {
     );
   }
   return (
-    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-500">
+    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#191922] border border-[#262633] text-xs font-bold text-slate-500">
       {rank}
     </div>
   );
@@ -110,7 +110,7 @@ function RankBadge({ rank }: { rank: number }) {
 
 const RECOMMENDATION_STYLES: Record<string, string> = {
   advance:   'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
-  interview: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
+  interview: 'bg-brand-500/10 text-brand-300 border-brand-500/20',
   test:      'bg-amber-500/15 text-amber-300 border-amber-500/30',
   hold:      'bg-sky-500/15 text-sky-300 border-sky-500/30',
   discard:   'bg-red-500/15 text-red-300 border-red-500/30',
@@ -143,7 +143,7 @@ function AiRecommendationBadge({ recommendation }: { recommendation: string | nu
 const SENIORITY_STYLES: Record<SeniorityLevel, string> = {
   Junior:      'bg-blue-500/10 text-blue-400 ring-1 ring-blue-500/25',
   'Semi-Senior': 'bg-indigo-500/10 text-indigo-300 ring-1 ring-indigo-500/25',
-  Senior:      'bg-violet-500/10 text-violet-300 ring-1 ring-violet-500/25',
+  Senior:      'bg-brand-500/10 text-brand-300 ring-1 ring-brand-500/25',
 };
 
 function SeniorityBadge({ level }: { level: SeniorityLevel }) {
@@ -179,10 +179,10 @@ export default function CandidateCard({
 
   return (
     <article
-      className={`rounded-2xl border transition-all duration-200 overflow-hidden
+      className={`rounded-xl border transition-all duration-200 overflow-hidden
         ${isOpen
-          ? 'border-violet-500/40 bg-slate-800/90 shadow-lg shadow-violet-500/5'
-          : 'border-slate-700/50 bg-slate-800/50 hover:border-slate-600 hover:bg-slate-800/70'
+          ? 'border-brand-500/30 bg-[#191922]'
+          : 'border-[#262633] bg-[#191922] hover:border-[#262633] hover:bg-[#191922]'
         }
       `}
     >
@@ -196,7 +196,7 @@ export default function CandidateCard({
 
         {/* Avatar */}
         <div
-          className={`flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br ${gradient} text-white text-sm font-bold select-none`}
+          className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-brand-500 text-white text-sm font-bold select-none"
           aria-hidden="true"
         >
           {getInitials(candidate.full_name)}
@@ -247,7 +247,7 @@ export default function CandidateCard({
               ? `Colapsar resumen de ${candidate.full_name}`
               : `Ver resumen de IA de ${candidate.full_name}`
           }
-          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-violet-300 hover:bg-violet-500/10 border border-transparent hover:border-violet-500/20 transition-all duration-150"
+          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-brand-300 hover:bg-brand-500/10 border border-transparent hover:border-brand-500/20 transition-all duration-150"
         >
           <SparklesIcon className="w-3 h-3" />
           <span className="hidden sm:inline">
@@ -276,12 +276,12 @@ export default function CandidateCard({
         `}
         aria-hidden={!isOpen}
       >
-        <div className="border-t border-slate-700/60 px-4 py-5 space-y-5">
+        <div className="border-t border-[#262633] px-4 py-5 space-y-5">
 
           {/* AI Summary */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <SparklesIcon className="w-3.5 h-3.5 text-violet-400" />
+              <SparklesIcon className="w-3.5 h-3.5 text-brand-400" />
               <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Resumen de Perfil · IA
               </h4>
@@ -290,7 +290,7 @@ export default function CandidateCard({
                   href={candidate.resume_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="ml-auto flex items-center gap-1 text-xs text-slate-500 hover:text-violet-400 transition-colors"
+                  className="ml-auto flex items-center gap-1 text-xs text-slate-500 hover:text-brand-400 transition-colors"
                 >
                   <ExternalLinkIcon className="w-3 h-3" />
                   Ver CV
@@ -303,7 +303,7 @@ export default function CandidateCard({
           </div>
 
           {/* Reasoning */}
-          <div className="rounded-xl bg-slate-900/60 border border-slate-700/40 px-4 py-3">
+          <div className="rounded-xl bg-[#101016]/60 border border-[#262633] px-4 py-3">
             <p className="text-xs font-semibold text-slate-500 mb-1">
               Razonamiento del modelo
             </p>
@@ -364,7 +364,7 @@ export default function CandidateCard({
               {candidate.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs bg-slate-700/60 text-slate-300 border border-slate-600/50"
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs bg-[#262633] text-slate-300 border border-slate-600/50"
                 >
                   {skill}
                 </span>
@@ -373,7 +373,7 @@ export default function CandidateCard({
           </div>
 
           {/* LLM observability meta */}
-          <div className="flex flex-wrap items-center gap-4 pt-1 border-t border-slate-700/40">
+          <div className="flex flex-wrap items-center gap-4 pt-1 border-t border-[#262633]">
             <div className="flex items-center gap-1.5 text-[10px] text-slate-600">
               <ZapIcon className="w-3 h-3" />
               <span className="font-medium">{candidate.model_version}</span>

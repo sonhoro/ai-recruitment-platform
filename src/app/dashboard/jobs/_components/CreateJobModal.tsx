@@ -36,12 +36,12 @@ interface CreateJobModalProps {
 // ─────────────────────────────────────────────────────────────
 
 const INPUT_CLS =
-  'w-full rounded-lg bg-slate-700/60 border border-slate-600/50 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors';
+  'w-full rounded-lg bg-[#262633] border border-slate-600/50 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors';
 
 const LABEL_CLS = 'block text-xs font-medium text-slate-300 mb-1.5';
 
 const SELECT_CLS =
-  'w-full rounded-lg bg-slate-700/60 border border-slate-600/50 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none';
+  'w-full rounded-lg bg-[#262633] border border-slate-600/50 px-3.5 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors appearance-none';
 
 // ─────────────────────────────────────────────────────────────
 // Component
@@ -111,13 +111,13 @@ export default function CreateJobModal({
         aria-labelledby="modal-title"
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
-        <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl bg-slate-900 border border-slate-700/60 shadow-2xl shadow-black/40 overflow-hidden">
+        <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl bg-[#101016] border border-[#1e1e2a] overflow-hidden">
 
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-slate-800 flex-shrink-0">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-[#1e1e2a] flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-500/15 border border-violet-500/25">
-                <BriefcaseIcon className="w-4 h-4 text-violet-400" />
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20">
+                <BriefcaseIcon className="w-4 h-4 text-brand-400" />
               </div>
               <div>
                 <h2 id="modal-title" className="text-sm font-semibold text-white">
@@ -133,7 +133,7 @@ export default function CreateJobModal({
               onClick={() => { if (!isPending) onClose(); }}
               disabled={isPending}
               aria-label="Cerrar modal"
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-colors disabled:opacity-40"
+              className="flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-white hover:bg-[#191922] transition-colors disabled:opacity-40"
             >
               <XIcon className="w-4 h-4" />
             </button>
@@ -305,12 +305,12 @@ export default function CreateJobModal({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-800 bg-slate-900/80 flex-shrink-0">
+          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#1e1e2a] bg-[#101016]/80 flex-shrink-0">
             <button
               type="button"
               onClick={() => { if (!isPending) onClose(); }}
               disabled={isPending}
-              className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors disabled:opacity-40"
+              className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg hover:bg-[#191922] transition-colors disabled:opacity-40"
             >
               Cancelar
             </button>
@@ -318,7 +318,7 @@ export default function CreateJobModal({
               type="submit"
               form="create-job-form"
               disabled={isPending}
-              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-slate-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 shadow-lg shadow-violet-500/20"
+              className="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white rounded-lg bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-[#101016] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <>

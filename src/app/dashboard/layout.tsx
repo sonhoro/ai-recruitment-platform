@@ -17,10 +17,10 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-slate-950 text-white overflow-hidden">
+    <div className="flex h-screen bg-[#08080e] text-white overflow-hidden">
 
       {/* ── Sidebar ─────────────────────────────────────────── */}
-      <aside className="w-64 flex-shrink-0 flex flex-col bg-slate-900 border-r border-slate-800">
+      <aside className="w-64 flex-shrink-0 flex flex-col bg-[#101016]">
         <Suspense fallback={null}>
           <SidebarNav />
         </Suspense>

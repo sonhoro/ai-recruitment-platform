@@ -97,7 +97,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
           </p>
         </div>
       ) : (
-        <div className="flex items-start gap-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 px-4 py-3">
+        <div className="flex items-start gap-2.5 rounded-xl bg-[#191922] border border-[#262633] px-4 py-3">
           <AlertCircleIcon className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
           <p className="text-sm text-slate-400">
             No tienes un CV subido todavía. Sube tu currículum en formato PDF para poder postularte a las vacantes.
@@ -112,12 +112,12 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={`
-          relative cursor-pointer rounded-2xl border-2 border-dashed p-12 text-center transition-all
+          relative cursor-pointer rounded-xl border-2 border-dashed p-12 text-center transition-all
           ${dragOver
             ? 'border-emerald-400 bg-emerald-500/10'
             : file
-              ? 'border-emerald-600/50 bg-slate-800/50'
-              : 'border-slate-700 bg-slate-900/50 hover:border-slate-600'
+              ? 'border-emerald-600/50 bg-[#191922]'
+              : 'border-[#262633] bg-[#101016]/50 hover:border-slate-600'
           }
         `}
       >
@@ -131,7 +131,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
 
         {file ? (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
               <FileTextIcon className="w-6 h-6 text-emerald-400" />
             </div>
             <div>
@@ -149,7 +149,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-[#191922] flex items-center justify-center">
               <UploadIcon className="w-6 h-6 text-slate-500" />
             </div>
             <div>
@@ -163,7 +163,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
       </div>
 
       {/* Info notice */}
-      <div className="rounded-xl bg-slate-900 border border-slate-800 px-4 py-3 flex items-center justify-between">
+      <div className="rounded-xl bg-[#101016] border border-[#1e1e2a] px-4 py-3 flex items-center justify-between">
         <p className="text-xs text-slate-400">
           {email && fullName ? (
             <>Subiendo como <span className="text-slate-200 font-medium">{fullName}</span> &lt;{email}&gt;</>
@@ -199,7 +199,7 @@ export default function UploadCvForm({ email, fullName, jobId, existingCvName }:
       <button
         type="submit"
         disabled={!file || isPending}
-        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-500 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isPending ? (
           <>
