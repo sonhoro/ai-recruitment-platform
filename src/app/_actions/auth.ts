@@ -218,6 +218,21 @@ export async function candidateRegister(
     return { success: false, error: 'Error al crear el usuario.' };
   }
 
+  // Create a candidate profile record (without a specific job)
+  const { error: profileError } = await admin
+    .from('candidates')
+    .insert({
+      auth_user_id: data.user.id,
+      full_name: fullName,
+      email,
+      source: 'registration',
+    });
+
+  if (profileError) {
+    console.error('[auth] candidateRegister profile insert error:', profileError);
+    // Non-fatal — auth user was created; profile can be completed later
+  }
+
   // Sign in so the user has a session immediately
   const anonClient = await createServerClient();
   await anonClient.auth.signInWithPassword({ email, password });

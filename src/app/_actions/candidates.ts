@@ -14,7 +14,7 @@ export async function applyToJob(
   if (!ctx) return { error: 'No autorizado. Inicia sesión.' };
 
   let resumeUrl: string | undefined = customResumeUrl;
-  let fullName = ctx.email.split('@')[0];
+  let fullName: string | null = null;
 
   if (!resumeUrl) {
     const c = await cookies();
@@ -24,6 +24,7 @@ export async function applyToJob(
       const supabase = await createServerClient();
       const { data: { user } } = await supabase.auth.getUser();
       resumeUrl = user?.user_metadata?.main_resume_url as string | undefined;
+      fullName = user?.user_metadata?.full_name as string | null ?? null;
     }
   }
 
@@ -41,7 +42,7 @@ export async function applyToJob(
     .limit(1)
     .maybeSingle();
 
-  if (existing?.full_name) fullName = existing.full_name;
+  fullName ??= existing?.full_name ?? ctx.email.split('@')[0];
 
   const { data: dup } = await admin
     .from('candidates')
