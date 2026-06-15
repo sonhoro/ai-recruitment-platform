@@ -39,6 +39,9 @@ export async function updateInterview(
     return { success: false, error: 'No hay campos para actualizar.' };
   }
 
+  // When any field is edited, promote status from 'por_programar' to 'scheduled'
+  updateData.status = 'scheduled';
+
   const { error } = await admin
     .from('interviews')
     .update(updateData)

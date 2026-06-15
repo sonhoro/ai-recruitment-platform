@@ -3,21 +3,50 @@
   "nodes": [
     {
       "parameters": {
+        "jsCode": "// 1. Recorremos todos los items de entrada para capturar datos de ambas ramas\nconst allItems = $input.all();\n\nlet cvText = \"\";\nlet jobData = {};\nlet bodyData = {};\n\nfor (const item of allItems) {\n  const json = item.json;\n  if (json.text || json.textExtracted) {\n    cvText = String(json.text || json.textExtracted || \"\").slice(0, 8000);\n  }\n  if (json.title || json.description) {\n    jobData = json;\n  }\n  if (json.body) {\n    bodyData = json.body;\n  }\n}\n\n// 2. Fallback al webhook para candidate_id y job_id\ntry {\n  const wh = $('Webhook1').item.json;\n  bodyData = wh.body || wh;\n} catch (_) {}\n\n// 3. Construimos el objeto plano final\nconst resultadoPlano = {\n  cv_text: cvText,\n  job_title: String(jobData.title || \"\"),\n  job_description: String(jobData.description || \"\"),\n  job_requirements: String(jobData.requirements || \"\"),\n  job_skills: Array.isArray(jobData.skills_required || jobData.skills) ? (jobData.skills_required || jobData.skills) : [],\n  candidate_id: String(bodyData.candidate_id || \"\"),\n  job_id: String(bodyData.job_id || \"\"),\n  _execution_start_ms: Date.now()\n};\n\n// 4. Retornamos\nreturn [{ json: resultadoPlano }];"
+      },
+      "id": "f8486fcc-b583-45bb-903b-083b693c6e1a",
+      "name": "Merge CV & Job",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const llmOutput = $input.first().json;\n\nlet jsonResult;\ntry {\n  if (llmOutput.summary && llmOutput.seniority && llmOutput.score !== undefined) {\n    jsonResult = llmOutput;\n  } else if (typeof llmOutput.output === \"string\") {\n    const cleaned = llmOutput.output.replace(/```json\\s*/g, \"\").replace(/```\\s*/g, \"\").trim();\n    jsonResult = JSON.parse(cleaned);\n  } else if (typeof llmOutput.output === \"object\" && llmOutput.output !== null) {\n    jsonResult = llmOutput.output;\n  } else {\n    throw new Error(\"Formato inesperado del LLM: \" + JSON.stringify(Object.keys(llmOutput)));\n  }\n\n  const err = validateLLMResult(jsonResult);\n  if (err) throw new Error(err);\n\n  const merged = $(\"Merge CV & Job\").first().json;\n\n  return [{\n    candidate_id: merged.candidate_id,\n    job_id: merged.job_id,\n    ai_summary: String(jsonResult.summary),\n    json_result: JSON.parse(JSON.stringify(jsonResult)),\n    model_version: \"deepseek-chat\",\n    prompt_tokens: llmOutput.usage?.prompt_tokens || 0,\n    completion_tokens: llmOutput.usage?.completion_tokens || 0\n  }];\n} catch (error) {\n  const merged = $(\"Merge CV & Job\").first().json;\n  return [{\n    candidate_id: merged.candidate_id,\n    job_id: merged.job_id,\n    ai_summary: \"Error en analisis IA\",\n    json_result: {\n      summary: \"Error en analisis IA\",\n      seniority: null,\n      score: 0,\n      classification: [],\n      suggestions: \"HOLD: Error del LLM - \" + error.message,\n      riskLevel: \"Medium\"\n    },\n    model_version: \"deepseek-chat\",\n    prompt_tokens: 0,\n    completion_tokens: 0\n  }];\n}\n\nfunction validateLLMResult(r) {\n  if (!r || typeof r !== \"object\") return \"Resultado no es un objeto\";\n  if (typeof r.summary !== \"string\" || !r.summary) return \"summary invalido\";\n  const VALID_SEN = [\"Junior\", \"Semi-Senior\", \"Senior\"];\n  if (!VALID_SEN.includes(r.seniority)) return \"seniority invalido: \" + r.seniority;\n  if (typeof r.score !== \"number\" || r.score < 0 || r.score > 100) return \"score invalido: \" + r.score;\n  if (!Array.isArray(r.classification)) return \"classification invalido\";\n  const validPrefixes = [\"ADVANCE:\", \"INTERVIEW:\", \"TEST:\", \"HOLD:\", \"DISCARD:\"];\n  if (typeof r.suggestions !== \"string\" || !validPrefixes.some(function(p) { return r.suggestions.startsWith(p); })) {\n    return \"suggestions debe empezar con \" + validPrefixes.join(\", \");\n  }\n  const VALID_RISK = [\"Low\", \"Medium\", \"High\"];\n  if (!VALID_RISK.includes(r.riskLevel)) return \"riskLevel invalido: \" + r.riskLevel;\n  return null;\n}"
+      },
+      "id": "17c17c57-06ea-4951-9344-323d03f153d5",
+      "name": "Validate & Format Callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        848
+      ]
+    },
+    {
+      "parameters": {
         "httpMethod": "POST",
         "path": "cv-analysis",
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "5a087e2c-ebc2-44c1-b7d1-83e353b5afc8",
-      "name": "Webhook",
+      "id": "06a30c5f-b39d-412f-80d9-337af095416c",
+      "name": "Webhook1",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [240, 400],
+      "position": [
+        224,
+        848
+      ],
       "webhookId": "9d32fc45-5d61-4e4d-a845-eed3e18ecab9"
     },
     {
       "parameters": {
-        "url": "={{ $json.body.cv_url }}",
+        "url": "={{ $json.cv_url }}",
         "options": {
           "response": {
             "response": {
@@ -26,11 +55,14 @@
           }
         }
       },
-      "id": "37e79c0e-100d-4437-9be0-f91e64950912",
-      "name": "Download CV PDF",
+      "id": "afea06ff-1253-438e-86cf-ad3f12c86cf4",
+      "name": "Download CV PDF1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [480, 300]
+      "position": [
+        448,
+        752
+      ]
     },
     {
       "parameters": {
@@ -39,25 +71,28 @@
           "joinPages": true
         }
       },
-      "id": "50575e5e-89c8-4c9e-a43c-2cad58044688",
-      "name": "Extract PDF Text",
+      "id": "4f598e72-30c7-4c50-a01f-5c07e4296ea1",
+      "name": "Extract PDF Text1",
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1.1,
-      "position": [720, 300]
+      "position": [
+        672,
+        752
+      ]
     },
     {
       "parameters": {
-        "url": "={{ $env.SUPABASE_URL }}/rest/v1/jobs?id=eq.{{ $(\"Webhook\").item.json.body.job_id }}",
+        "url": "=https://ai-recruitment-platform-pearl.vercel.app/api/jobs/{{ $json.job_id }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "apikey",
-              "value": "={{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+              "value": "="
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{ $env.SUPABASE_SERVICE_ROLE_KEY }}"
+              "value": "="
             }
           ]
         },
@@ -69,183 +104,104 @@
           }
         }
       },
-      "id": "c40cfd38-a735-4063-9ab0-2da245d658d1",
-      "name": "Fetch Job Details",
+      "id": "ad5aa230-fa1a-4423-9e07-5cdfcf4334f0",
+      "name": "Fetch Job Details1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [720, 560]
-    },
-    {
-      "parameters": {
-        "jsCode": "const cvData = $(\"Extract PDF Text\").first().json;\nconst jobArr = $(\"Fetch Job Details\").first().json;\nconst jobData = Array.isArray(jobArr) ? jobArr[0] : jobArr;\nconst webhook = $(\"Webhook\").first().json.body;\n\nreturn [{\n  cv_text: cvData.data || \"\",\n  job_title: jobData?.title || \"\",\n  job_description: jobData?.description || \"\",\n  job_requirements: jobData?.requirements || \"\",\n  job_skills: jobData?.skills_required || [],\n  candidate_id: webhook.candidate_id,\n  job_id: webhook.job_id,\n  _execution_start_ms: Date.now()\n}];"
-      },
-      "id": "merge-cv-job-001",
-      "name": "Merge CV & Job",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [960, 400]
+      "position": [
+        672,
+        944
+      ]
     },
     {
       "parameters": {
         "promptType": "define",
-        "text": "Eres un reclutador experto. Analiza este CV comparándolo con los requisitos de la vacante.\n\nVACANTE:\nTítulo: {{ $json.job_title }}\nDescripción: {{ $json.job_description }}\nRequisitos: {{ $json.job_requirements }}\nSkills requeridos: {{ $json.job_skills }}\n\nCV (texto extraído del PDF):\n{{ $json.cv_text }}\n\nResponde SOLO con JSON válido (sin markdown, sin etiquetas ```json):\n{\n  \"summary\": \"Resumen profesional del candidato en 2-3 oraciones\",\n  \"seniority\": \"Junior\" | \"Semi-Senior\" | \"Senior\",\n  \"score\": 0-100,\n  \"classification\": [\"skill1\", \"skill2\"],\n  \"suggestions\": \"ADVANCE:\" | \"INTERVIEW:\" | \"TEST:\" | \"HOLD:\" | \"DISCARD:\" seguido de justificación\",\n  \"riskLevel\": \"Low\" | \"Medium\" | \"High\"\n}",
+        "text": "=Eres un reclutador experto. Analiza este CV comparándolo con los requisitos de la vacante.\n\nVACANTE:\nTítulo: {{ $json.job_title }}\nDescripción: {{ $json.job_description }}\nRequisitos: {{ $json.job_requirements }}\nSkills requeridos: {{ $json.job_skills }}\n\nCV (texto extraído del PDF):\n{{ $json.cv_text }}\n\nREGLAS DE PUNTUACIÓN (sé ESTRICTO):\n- Si los skills requeridos están vacíos, infierelos del título y la descripción de la vacante\n- score = Porcentaje de skills (definidos o inferidos) que el candidato posee\n- Si el CV no menciona NINGUNA tecnología del stack requerido, score debe ser 0-20\n- Si la experiencia del candidato es en un rubro completamente diferente (ej: cocina postulando a programación), score debe ser 0-10\n- NO inflar el score por experiencia general, liderazgo o habilidades blandas si no hay match técnico\n- Un candidato sin experiencia en el stack principal NO puede tener score > 30\n\nResponde SOLO con JSON válido (sin markdown, sin etiquetas ```json):\n{\n  \"summary\": \"Resumen profesional del candidato en 2-3 oraciones\",\n  \"seniority\": \"Junior\" | \"Semi-Senior\" | \"Senior\",\n  \"score\": 0-100,\n  \"classification\": [\"skill1\", \"skill2\"],\n  \"suggestions\": \"ADVANCE:\" | \"INTERVIEW:\" | \"TEST:\" | \"HOLD:\" | \"DISCARD:\" seguido de justificación\",\n  \"riskLevel\": \"Low\" | \"Medium\" | \"High\"\n}",
         "batching": {}
       },
-      "id": "b89aaf22-1cf9-4876-b308-0ca0f818733c",
-      "name": "Analyze CV with DeepSeek",
+      "id": "6d751fd8-9f49-457f-a2e3-2e95712a8290",
+      "name": "Analyze CV with DeepSeek1",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
-      "position": [1200, 400]
+      "position": [
+        1120,
+        848
+      ]
     },
     {
       "parameters": {
+        "model": "deepseek-v4-flash",
         "options": {
           "maxTokens": 2048,
           "responseFormat": "json_object",
           "temperature": 0.7
         }
       },
-      "id": "b92b6c0b-37c1-4b3b-8df0-d48518fe6ea7",
-      "name": "DeepSeek Model",
+      "id": "c4952ebf-c824-4e16-8805-75b1d22c5718",
+      "name": "DeepSeek Model1",
       "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
       "typeVersion": 1,
-      "position": [1280, 624],
+      "position": [
+        1200,
+        1072
+      ],
       "credentials": {
         "deepSeekApi": {
-          "id": "5bBBx9a47eW3Ynub",
-          "name": "DeepSeek account"
+          "id": "Q9MBZeUOqSxPWhL2",
+          "name": "DeepSeek account 2"
         }
       }
     },
     {
       "parameters": {
-        "jsCode": "const llmOutput = $input.first().json;\nconst executionStart = $(\"Merge CV & Job\").first().json._execution_start_ms;\nconst latencyMs = executionStart ? Date.now() - executionStart : 0;\n\nlet jsonResult;\ntry {\n  if (typeof llmOutput.output === \"string\") {\n    jsonResult = JSON.parse(llmOutput.output);\n  } else if (typeof llmOutput.output === \"object\" && llmOutput.output !== null) {\n    jsonResult = llmOutput.output;\n  } else if (llmOutput.json_result) {\n    jsonResult = llmOutput.json_result;\n  } else {\n    throw new Error(\"Formato inesperado del LLM: \" + JSON.stringify(Object.keys(llmOutput)));\n  }\n\n  const err = validateLLMResult(jsonResult);\n  if (err) throw new Error(err);\n\n  const merged = $(\"Merge CV & Job\").first().json;\n  return [{\n    candidate_id: merged.candidate_id,\n    job_id: merged.job_id,\n    json_result: jsonResult,\n    model_version: \"deepseek-chat\",\n    prompt_tokens: llmOutput.usage?.prompt_tokens || 0,\n    completion_tokens: llmOutput.usage?.completion_tokens || 0,\n    latency_ms: latencyMs\n  }];\n} catch (error) {\n  const merged = $(\"Merge CV & Job\").first().json;\n  return [{\n    candidate_id: merged.candidate_id,\n    job_id: merged.job_id,\n    json_result: {\n      summary: \"Error en análisis IA\",\n      seniority: null,\n      score: 0,\n      classification: [],\n      suggestions: \"HOLD: Error del LLM - \" + error.message,\n      riskLevel: \"Medium\"\n    },\n    model_version: \"deepseek-chat\",\n    prompt_tokens: 0,\n    completion_tokens: 0,\n    latency_ms: latencyMs,\n    prompt_template_id: \"cv-evaluator-v1.0\"\n  }];\n}\n\nfunction validateLLMResult(r) {\n  if (!r || typeof r !== \"object\") return \"Resultado no es un objeto\";\n  if (typeof r.summary !== \"string\" || !r.summary) return \"summary inválido\";\n  const VALID_SEN = [\"Junior\", \"Semi-Senior\", \"Senior\"];\n  if (!VALID_SEN.includes(r.seniority)) return \"seniority inválido: \" + r.seniority;\n  if (!Number.isInteger(r.score) || r.score < 0 || r.score > 100) return \"score inválido: \" + r.score;\n  if (!Array.isArray(r.classification) || r.classification.length === 0) return \"classification inválido\";\n  const validPrefixes = [\"ADVANCE:\", \"INTERVIEW:\", \"TEST:\", \"HOLD:\", \"DISCARD:\"];\n  if (typeof r.suggestions !== \"string\" || !validPrefixes.some(p => r.suggestions.startsWith(p))) {\n    return \"suggestions debe empezar con \" + validPrefixes.join(\", \");\n  }\n  const VALID_RISK = [\"Low\", \"Medium\", \"High\"];\n  if (!VALID_RISK.includes(r.riskLevel)) return \"riskLevel inválido: \" + r.riskLevel;\n  return null;\n}"
-      },
-      "id": "validate-format-callback-001",
-      "name": "Validate & Format Callback",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1440, 400]
-    },
-    {
-      "parameters": {
         "method": "POST",
-        "url": "={{ $env.PLATFORM_URL }}/api/webhook-ats-result",
+        "url": "https://ai-recruitment-platform-pearl.vercel.app/api/webhook-ats-result",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
               "name": "X-Webhook-Secret",
-              "value": "={{ $env.N8N_CALLBACK_SECRET }}"
+              "value": "ClaveSecretaVercelN8n2026"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ $json }}",
+        "jsonBody": "={{ \n  (() => {\n    // 1. Extraemos el json_result base\n    let result = $json.json_result || {};\n    \n    // 2. Si viene como un string (JSON serializado), lo parseamos de forma segura\n    if (typeof result === 'string') {\n      try { result = JSON.parse(result); } catch(_) { result = {}; }\n    }\n\n    // --- PARACAÍDAS 1: Seniority (Estricto String) ---\n    const validSeniorities = [\"Junior\", \"Semi-Senior\", \"Senior\"];\n    let currentSeniority = result.seniority || $json.seniority || \"\";\n    if (!validSeniorities.includes(currentSeniority)) {\n      currentSeniority = \"Junior\"; \n    }\n\n    // --- PARACAÍDAS 2: Classification (Estricto Array no vacío) ---\n    let currentClassification = result.classification || $json.classification;\n    // Si no es un array, intentamos convertirlo o creamos uno por defecto\n    if (!Array.isArray(currentClassification)) {\n      if (typeof currentClassification === 'string' && currentClassification.trim() !== \"\") {\n        currentClassification = [currentClassification];\n      } else {\n        currentClassification = [\"General\"]; // Valor por defecto si la IA no mandó nada\n      }\n    }\n    // Si es un array pero está vacío, le metemos un string por defecto\n    if (currentClassification.length === 0) {\n      currentClassification = [\"General\"];\n    }\n\n    // 3. Reconstruimos el objeto json_result totalmente limpio y blindado\n    const cleanJsonResult = {\n      ...result,\n      seniority: currentSeniority,\n      classification: currentClassification.map(item => String(item)) // Nos aseguramos que sean strings\n    };\n\n    // 4. Retornamos el stringify final estructurado para Next.js\n    return JSON.stringify({\n      \"candidate_id\": $json.candidate_id,\n      \"job_id\": $json.job_id,\n      \"ai_summary\": $json.ai_summary || cleanJsonResult.summary || \"No summary provided.\",\n      \"json_result\": cleanJsonResult,\n      \"model_version\": $json.model_version || \"deepseek-r1\",\n      \"prompt_tokens\": $json.prompt_tokens || 0,\n      \"completion_tokens\": $json.completion_tokens || 0,\n      \"latency_ms\": $json.latency_ms || Math.max(0, Date.now() - ($json._execution_start_ms || Date.now()))\n    });\n  })()\n}}",
         "options": {}
       },
-      "id": "23ba4e80-6ab2-49c2-a521-b8b0e2da279f",
-      "name": "Send Callback",
+      "id": "9d9761e2-fce4-461e-963e-1b223391139c",
+      "name": "Send Callback1",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
-      "position": [1680, 400]
+      "position": [
+        1696,
+        848
+      ]
     },
     {
       "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ { \"status\": \"processing\", \"candidate_id\": $(\"Webhook\").item.json.body.candidate_id } }}",
+        "responseBody": "={{ { \"status\": \"processing\", \"candidate_id\": $(\"Webhook1\").item.json.candidate_id } }}",
         "options": {}
       },
-      "id": "508a2052-4444-4ce9-9fbe-4743602d035f",
-      "name": "Respond to Webhook",
+      "id": "57443529-c82a-4a0a-8c46-06a1413a28bc",
+      "name": "Respond to Webhook1",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
-      "position": [1920, 400]
+      "position": [
+        1920,
+        848
+      ]
     }
   ],
   "pinData": {},
   "connections": {
-    "Webhook": {
-      "main": [
-        [
-          {
-            "node": "Download CV PDF",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Fetch Job Details",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Download CV PDF": {
-      "main": [
-        [
-          {
-            "node": "Extract PDF Text",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract PDF Text": {
-      "main": [
-        [
-          {
-            "node": "Merge CV & Job",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Fetch Job Details": {
-      "main": [
-        [
-          {
-            "node": "Merge CV & Job",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Merge CV & Job": {
       "main": [
         [
           {
-            "node": "Analyze CV with DeepSeek",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "DeepSeek Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "Analyze CV with DeepSeek",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Analyze CV with DeepSeek": {
-      "main": [
-        [
-          {
-            "node": "Validate & Format Callback",
+            "node": "Analyze CV with DeepSeek1",
             "type": "main",
             "index": 0
           }
@@ -256,18 +212,89 @@
       "main": [
         [
           {
-            "node": "Send Callback",
+            "node": "Send Callback1",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Send Callback": {
+    "Webhook1": {
       "main": [
         [
           {
-            "node": "Respond to Webhook",
+            "node": "Fetch Job Details1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download CV PDF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download CV PDF1": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text1": {
+      "main": [
+        [
+          {
+            "node": "Merge CV & Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Job Details1": {
+      "main": [
+        [
+          {
+            "node": "Merge CV & Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze CV with DeepSeek1": {
+      "main": [
+        [
+          {
+            "node": "Validate & Format Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze CV with DeepSeek1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Callback1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
             "type": "main",
             "index": 0
           }
@@ -275,15 +302,18 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": false
   },
+  "versionId": "c6cc47e0-dc55-4f61-82f9-7c56e31c00a4",
   "meta": {
-    "templateCredsSetupCompleted": true
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ab086e8dc312e64c3bad2a1a5acf67073453035c43a631fa129ee78ceffa9233"
   },
   "nodeGroups": [],
+  "id": "cDYcM6CetGdWatKU",
   "tags": []
 }

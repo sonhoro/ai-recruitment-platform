@@ -100,12 +100,12 @@ export default async function InterviewsPage() {
   }))
 
   const upcoming = interviews.filter(
-    (i) => i.status === 'scheduled' || i.status === 'confirmed'
+    (i) => i.status === 'por_programar' || i.status === 'scheduled'
   )
   const completed = interviews.filter((i) => i.status === 'completed')
 
+  const porProgramar = interviews.filter((i) => i.status === 'por_programar').length
   const scheduled = interviews.filter((i) => i.status === 'scheduled').length
-  const confirmed = interviews.filter((i) => i.status === 'confirmed').length
   const completedCount = completed.length
 
   const thisWeek = interviews.filter((i) => {
@@ -135,11 +135,11 @@ export default async function InterviewsPage() {
 
           {/* Header badges */}
           <div className="flex flex-wrap gap-2 sm:ml-auto">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              {porProgramar} Por programar
+            </span>
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
               {scheduled} Programadas
-            </span>
-            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              {confirmed} Confirmadas
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/20 text-slate-400 border border-slate-500/30">
               {completedCount} Completadas
@@ -150,14 +150,14 @@ export default async function InterviewsPage() {
         {/* ── KPI mini-row ── */}
         <div className="flex flex-wrap gap-2">
           <StatChip
+            label="Por programar"
+            value={porProgramar}
+            color="bg-amber-500/10 border-amber-500/30 text-amber-300"
+          />
+          <StatChip
             label="Programadas"
             value={scheduled}
             color="bg-sky-500/10 border-sky-500/30 text-sky-300"
-          />
-          <StatChip
-            label="Confirmadas"
-            value={confirmed}
-            color="bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
           />
           <StatChip
             label="Completadas"

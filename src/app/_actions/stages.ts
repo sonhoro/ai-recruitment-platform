@@ -260,7 +260,7 @@ export async function updateCandidateStage(
           recruiter_id:    recruiter.id,
           scheduled_at:    defaultScheduledAt.toISOString(),
           interview_type:  'phone_screen',
-          status:          'scheduled',
+          status:          'por_programar',
           duration_minutes: 60,
           timezone:        'UTC',
         });

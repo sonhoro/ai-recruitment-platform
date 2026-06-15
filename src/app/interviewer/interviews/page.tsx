@@ -28,8 +28,8 @@ const TYPE_CONFIG: Record<string, { label: string; classes: string }> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
+  por_programar: { label: 'Por programar', classes: 'bg-amber-500/20 text-amber-300 border border-amber-500/30' },
   scheduled: { label: 'Programada', classes: 'bg-sky-500/20 text-sky-300 border border-sky-500/30' },
-  confirmed: { label: 'Confirmada', classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' },
   completed: { label: 'Completada', classes: 'bg-slate-500/20 text-slate-400 border border-slate-500/30' },
 };
 
@@ -88,7 +88,7 @@ export default async function InterviewerInterviewsPage() {
   const interviews = (rawInterviews ?? []).filter(Boolean);
 
   const upcoming = interviews.filter(
-    (i) => i.status === 'scheduled' || i.status === 'confirmed',
+    (i) => i.status === 'por_programar' || i.status === 'scheduled',
   );
   const completed = interviews.filter((i) => i.status === 'completed');
 

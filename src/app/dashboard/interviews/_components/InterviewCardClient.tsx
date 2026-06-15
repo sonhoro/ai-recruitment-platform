@@ -62,13 +62,13 @@ const STATUS_CONFIG: Record<
   string,
   { label: string; classes: string }
 > = {
+  por_programar: {
+    label: 'Por programar',
+    classes: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+  },
   scheduled: {
     label: 'Programada',
     classes: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
-  },
-  confirmed: {
-    label: 'Confirmada',
-    classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
   },
   completed: {
     label: 'Completada',

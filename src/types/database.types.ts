@@ -42,8 +42,8 @@ export type InterviewType =
   | 'offer';
 
 export type InterviewStatus =
+  | 'por_programar'
   | 'scheduled'
-  | 'confirmed'
   | 'completed'
   | 'cancelled'
   | 'no_show';
