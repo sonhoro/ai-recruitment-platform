@@ -1,0 +1,306 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import {
+  UserIcon,
+  CalendarIcon,
+  LinkIcon,
+  CheckCircleIcon,
+  SaveIcon,
+  XIcon,
+} from 'lucide-react';
+import { updateInterview, getRecruiters } from '@/app/_actions/interviews';
+
+// ─── Shared type ──────────────────────────────────────────────────────────────
+
+export interface InterviewItem {
+  id: string;
+  candidate_name: string;
+  candidate_email: string;
+  job_title: string;
+  department: string;
+  interview_type: string;
+  status: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  interviewer: string;
+  recruiter_id: string | null;
+  score: number;
+  seniority: string;
+  meet_link: string | null;
+}
+
+// ─── Helpers (shared with server page) ────────────────────────────────────────
+
+export const TYPE_CONFIG: Record<
+  string,
+  { label: string; classes: string }
+> = {
+  phone_screen: {
+    label: 'Screening Telefónico',
+    classes: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
+  },
+  technical: {
+    label: 'Técnica',
+    classes: 'bg-violet-500/20 text-violet-300 border border-violet-500/30',
+  },
+  behavioral: {
+    label: 'Conductual',
+    classes: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+  },
+  panel: {
+    label: 'Panel',
+    classes: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
+  },
+  final: {
+    label: 'Final',
+    classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+  },
+};
+
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; classes: string }
+> = {
+  scheduled: {
+    label: 'Programada',
+    classes: 'bg-sky-500/20 text-sky-300 border border-sky-500/30',
+  },
+  confirmed: {
+    label: 'Confirmada',
+    classes: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30',
+  },
+  completed: {
+    label: 'Completada',
+    classes: 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
+  },
+};
+
+const SENIORITY_COLORS: Record<string, string> = {
+  Junior: 'bg-teal-500/20 text-teal-300',
+  'Semi-Senior': 'bg-blue-500/20 text-blue-300',
+  Senior: 'bg-purple-500/20 text-purple-300',
+};
+
+function ScoreBadge({ score }: { score: number }) {
+  const color =
+    score >= 85
+      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+      : score >= 70
+      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+      : 'bg-red-500/20 text-red-300 border-red-500/30';
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${color}`}>
+      ★ {score}
+    </span>
+  );
+}
+
+function formatDateTime(iso: string, duration: number): string {
+  const d = new Date(iso);
+  const weekday = d.toLocaleDateString('es-ES', { weekday: 'short' });
+  const day = d.getDate();
+  const month = d.toLocaleDateString('es-ES', { month: 'short' });
+  const time = d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  return `${weekday.charAt(0).toUpperCase() + weekday.slice(1)} ${day} ${month.charAt(0).toUpperCase() + month.slice(1)} · ${time} · ${duration} min`;
+}
+
+function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+interface InterviewCardClientProps {
+  interview: InterviewItem;
+  isUpcoming: boolean;
+}
+
+export default function InterviewCardClient({
+  interview,
+  isUpcoming,
+}: InterviewCardClientProps) {
+  const [editing, setEditing] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState(interview.scheduled_at);
+  const [interviewerName, setInterviewerName] = useState(interview.interviewer);
+  const [recruiters, setRecruiters] = useState<{ id: string; full_name: string }[]>([]);
+  const [selectedRecruiterId, setSelectedRecruiterId] = useState(interview.recruiter_id ?? '');
+  const [isPending, startTransition] = useTransition();
+
+  const typeCfg = TYPE_CONFIG[interview.interview_type] ?? TYPE_CONFIG.technical;
+  const statusCfg = STATUS_CONFIG[interview.status] ?? STATUS_CONFIG.scheduled;
+  const seniorityCls = SENIORITY_COLORS[interview.seniority] ?? 'bg-slate-500/20 text-slate-300';
+
+  async function handleEdit() {
+    const list = await getRecruiters();
+    setRecruiters(list);
+    setEditing(true);
+  }
+
+  function handleCancel() {
+    setScheduledAt(interview.scheduled_at);
+    setInterviewerName(interview.interviewer);
+    setSelectedRecruiterId(interview.recruiter_id ?? '');
+    setEditing(false);
+  }
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateInterview(interview.id, {
+        scheduled_at: scheduledAt !== interview.scheduled_at ? new Date(scheduledAt).toISOString() : undefined,
+        recruiter_id: selectedRecruiterId !== interview.recruiter_id ? selectedRecruiterId : undefined,
+      });
+      setEditing(false);
+    });
+  }
+
+  function handleRecruiterChange(recruiterId: string) {
+    setSelectedRecruiterId(recruiterId);
+    const recruiter = recruiters.find((r) => r.id === recruiterId);
+    if (recruiter) {
+      setInterviewerName(recruiter.full_name);
+    }
+  }
+
+  return (
+    <div className="relative flex flex-col gap-4 rounded-2xl bg-slate-900 border border-slate-800 p-5 hover:border-violet-500/40 transition-colors">
+      {/* Top row: type chip + status */}
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${typeCfg.classes}`}>
+          {typeCfg.label}
+        </span>
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusCfg.classes}`}>
+          {statusCfg.label}
+        </span>
+      </div>
+
+      {/* Candidate name + seniority + score */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <h3 className="text-base font-bold text-white leading-tight">
+            {interview.candidate_name}
+          </h3>
+          <span className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${seniorityCls}`}>
+            {interview.seniority}
+          </span>
+        </div>
+        <ScoreBadge score={interview.score} />
+      </div>
+
+      {/* Vacancy + department */}
+      <div className="flex flex-col gap-0.5">
+        <p className="text-sm font-medium text-slate-200">{interview.job_title}</p>
+        <p className="text-xs text-slate-500">{interview.department}</p>
+      </div>
+
+      {/* Interviewer - editable */}
+      <div className="flex items-center gap-2 text-slate-400 text-xs">
+        <UserIcon className="h-3.5 w-3.5 flex-shrink-0" />
+        {editing ? (
+          <select
+            value={selectedRecruiterId}
+            onChange={(e) => handleRecruiterChange(e.target.value)}
+            className="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+            disabled={isPending}
+          >
+            <option value="">Seleccionar encargado...</option>
+            {recruiters.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.full_name}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <span>{interviewerName}</span>
+        )}
+      </div>
+
+      {/* Date/time - editable */}
+      <div className="flex items-center gap-2 text-slate-400 text-xs">
+        <CalendarIcon className="h-3.5 w-3.5 flex-shrink-0" />
+        {editing ? (
+          <input
+            type="datetime-local"
+            value={toDatetimeLocal(scheduledAt)}
+            onChange={(e) => setScheduledAt(e.target.value)}
+            className="flex-1 rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1.5 text-xs text-slate-200 focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+            disabled={isPending}
+          />
+        ) : (
+          <span>{formatDateTime(interview.scheduled_at, interview.duration_minutes)}</span>
+        )}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px bg-slate-800" />
+
+      {/* Action buttons */}
+      <div className="flex items-center gap-2 flex-wrap">
+        {interview.meet_link ? (
+          <a
+            href={interview.meet_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium transition-colors"
+          >
+            <LinkIcon className="h-3.5 w-3.5" />
+            Unirse a Meet
+          </a>
+        ) : (
+          <button
+            disabled
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-slate-600 text-xs font-medium cursor-not-allowed"
+          >
+            <LinkIcon className="h-3.5 w-3.5" />
+            Unirse a Meet
+          </button>
+        )}
+
+        {editing ? (
+          <>
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
+            >
+              <SaveIcon className="h-3.5 w-3.5" />
+              {isPending ? 'Guardando...' : 'Guardar'}
+            </button>
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors"
+            >
+              <XIcon className="h-3.5 w-3.5" />
+              Cancelar
+            </button>
+          </>
+        ) : (
+          <>
+            {isUpcoming && (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors"
+              >
+                <CalendarIcon className="h-3.5 w-3.5" />
+                Editar
+              </button>
+            )}
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors"
+            >
+              <CheckCircleIcon className="h-3.5 w-3.5" />
+              Marcar Completada
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

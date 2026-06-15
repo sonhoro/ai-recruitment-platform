@@ -18,7 +18,6 @@
  *
  * Exports:
  *   updateCandidateStage(candidateId, newStatus) → StageUpdateResult
- *   STAGE_TRANSITIONS                             → allowed transition map (for UI)
  */
 
 import { revalidatePath } from 'next/cache';
@@ -45,7 +44,7 @@ import type { CandidateStatus } from '@/types/database.types';
  *
  * Exported so the StageDropdown UI can filter options based on current status.
  */
-export const STAGE_TRANSITIONS: Readonly<Record<CandidateStatus, CandidateStatus[]>> = {
+const STAGE_TRANSITIONS: Readonly<Record<CandidateStatus, CandidateStatus[]>> = {
   new:       ['screening', 'interview', 'rejected', 'withdrawn'],
   screening: ['interview', 'offer',     'rejected', 'withdrawn'],
   interview: ['offer',     'screening', 'rejected', 'withdrawn'],
@@ -240,12 +239,52 @@ export async function updateCandidateStage(
     ? (jobsRelation[0]?.title ?? 'Vacante')
     : (jobsRelation?.title ?? 'Vacante');
 
-  // ── 8. Revalidate cached pages ────────────────────────────────────────────
+  // ── 8. Create interview record if status changed to 'interview' ──────────
+
+  if (newStatus === 'interview') {
+    const { data: recruiter } = await adminSupabase
+      .from('recruiters')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+
+    if (recruiter) {
+      const defaultScheduledAt = new Date();
+      defaultScheduledAt.setDate(defaultScheduledAt.getDate() + 7);
+
+      const { error: interviewError } = await adminSupabase
+        .from('interviews')
+        .insert({
+          candidate_id:    candidateId,
+          job_id:          candidateRow.job_id,
+          recruiter_id:    recruiter.id,
+          scheduled_at:    defaultScheduledAt.toISOString(),
+          interview_type:  'phone_screen',
+          status:          'scheduled',
+          duration_minutes: 60,
+          timezone:        'UTC',
+        });
+
+      if (interviewError) {
+        console.warn(
+          `[stages] Interview record not created for candidate ${candidateId}:`,
+          interviewError.message,
+        );
+      }
+    } else {
+      console.warn(
+        `[stages] Recruiter not found for auth user ${user.id} — interview not created.`,
+      );
+    }
+  }
+
+  // ── 9. Revalidate cached pages ────────────────────────────────────────────
 
   revalidatePath('/dashboard/jobs');
   revalidatePath(`/dashboard/jobs/${candidateRow.job_id}`);
+  revalidatePath('/dashboard/interviews');
 
-  // ── 9. Dispatch notification webhook to n8n ───────────────────────────────
+  // ── 10. Dispatch notification webhook to n8n ───────────────────────────────
   //
   // Runs AFTER the DB update so a webhook failure never blocks stage promotion.
   // If dispatch fails, the candidate's status is already updated in the DB.
@@ -269,7 +308,7 @@ export async function updateCandidateStage(
     );
   }
 
-  // ── 10. Return ─────────────────────────────────────────────────────────────
+  // ── 11. Return ─────────────────────────────────────────────────────────────
 
   return {
     success: true,

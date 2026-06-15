@@ -4,6 +4,7 @@ import { useState, useMemo, useTransition } from 'react'
 import { Search, Users, ChevronDown } from 'lucide-react'
 import StageDropdown from '../../jobs/[id]/_components/StageDropdown'
 import { updateCandidateStage } from '@/app/_actions/stages'
+import CandidateDetailModal from './CandidateDetailModal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -16,12 +17,15 @@ interface Candidate {
   id: string
   full_name: string
   email: string
+  phone: string | null
+  ai_summary: string | null
   job_title: string
   seniority: Seniority
   score: number
   status: Status
   skills: string[]
   applied_at: string
+  location: string | null
   ai_recommendation: AiRecommendation
 }
 
@@ -125,6 +129,7 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [seniorityFilter, setSeniorityFilter] = useState<string>('all')
   const [scoreTierFilter, setScoreTierFilter] = useState<string>('all')
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null)
   const [, startTransition] = useTransition()
 
   function handleStageChange(candidateId: string, newStatus: Status) {
@@ -230,24 +235,30 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
                 </tr>
               ) : (
                 filtered.map((c, idx) => (
-                  <tr key={c.id} className="group hover:bg-slate-800/40 transition-colors">
+                  <tr
+                    key={c.id}
+                    className="group hover:bg-slate-800/40 transition-colors"
+                  >
                     <td className="px-4 py-3 text-slate-500 tabular-nums">{idx + 1}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
+                    <td
+                      className="px-4 py-3 cursor-pointer"
+                      onClick={() => setSelectedCandidate(c)}
+                    >
+                      <span className="flex items-center gap-3">
                         <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-xs font-bold text-violet-300 select-none">
                           {c.full_name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
                         </span>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-white truncate">{c.full_name}</p>
-                          <p className="text-xs text-slate-500 truncate">{c.email}</p>
-                        </div>
-                      </div>
+                        <span className="min-w-0">
+                          <span className="font-semibold text-white truncate">{c.full_name}</span>
+                          <span className="text-xs text-slate-500 truncate block">{c.email}</span>
+                        </span>
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-slate-300 max-w-[180px] truncate" title={c.job_title}>{c.job_title}</td>
                     <td className="px-4 py-3"><SeniorityChip seniority={c.seniority} /></td>
                     <td className="px-4 py-3 text-center"><ScoreBadge score={c.score} /></td>
                     <td className="px-4 py-3"><AiRecommendationBadge recommendation={c.ai_recommendation} /></td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <StageDropdown
                         candidateId={c.id}
                         currentStatus={c.status}
@@ -268,6 +279,13 @@ export default function CandidatesClient({ candidates }: { candidates: Candidate
           </p>
         </div>
       </div>
+
+      {/* Candidate Detail Modal */}
+      <CandidateDetailModal
+        isOpen={selectedCandidate !== null}
+        onClose={() => setSelectedCandidate(null)}
+        candidate={selectedCandidate}
+      />
     </div>
   )
 }
