@@ -160,7 +160,7 @@ export default function InterviewCardClient({
         meeting_url: meetLink !== (interview.meet_link ?? '') ? (meetLink || null) : undefined,
       });
 
-      if (result.success && meetLink && !interview.meet_link) {
+      if (result.success && meetLink) {
         const inviteResult = await sendInterviewInvitation({
           candidate_name: interview.candidate_name,
           candidate_email: interview.candidate_email,

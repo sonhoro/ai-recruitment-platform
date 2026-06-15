@@ -4,36 +4,48 @@
 -- ============================================================
 --
 -- Changes:
---   1. Temporarily change column to text to freely update values
---   2. Convert existing 'scheduled' → 'por_programar'
---      (por_programar is the new default for newly created interviews)
---   3. Convert existing 'confirmed' → 'scheduled'
---      (scheduled now means the interview has been configured)
+--   1. Drop default to allow type change
+--   2. Change column to text temporarily
+--   3. Convert existing 'scheduled' → 'por_programar'
+--      Convert existing 'confirmed' → 'scheduled'
 --   4. Create new enum type without 'confirmed'
---   5. Change column back to new enum type
---   6. Drop old type
+--   5. Change column to new enum type
+--   6. Set new default: 'por_programar'
+--   7. Drop old type
 -- ============================================================
 
--- Step 1: Change column to text temporarily
+-- Step 1: Drop the old default so the column can be recast
+ALTER TABLE public.interviews
+  ALTER COLUMN status DROP DEFAULT;
+
+-- Step 2: Change column to text temporarily
 ALTER TABLE public.interviews
   ALTER COLUMN status TYPE text;
 
--- Step 2: Migrate data
+-- Step 3: Migrate data
 UPDATE public.interviews SET status = 'por_programar' WHERE status = 'scheduled';
 UPDATE public.interviews SET status = 'scheduled' WHERE status = 'confirmed';
 
--- Step 3: Create new enum type without 'confirmed'
+-- Interviews that already have a meeting URL should remain 'scheduled'
+-- (they've already been configured by the recruiter)
+UPDATE public.interviews SET status = 'scheduled' WHERE meeting_url IS NOT NULL AND meeting_url != '';
+
+-- Step 4: Create new enum type without 'confirmed'
 CREATE TYPE interview_status_new AS ENUM (
   'por_programar', 'scheduled', 'completed', 'cancelled', 'no_show'
 );
 
--- Step 4: Change column to new enum
+-- Step 5: Change column to new enum
 ALTER TABLE public.interviews
   ALTER COLUMN status TYPE interview_status_new
   USING status::interview_status_new;
 
--- Step 5: Drop old type
+-- Step 6: Set new default to 'por_programar'
+ALTER TABLE public.interviews
+  ALTER COLUMN status SET DEFAULT 'por_programar';
+
+-- Step 7: Drop old type
 DROP TYPE interview_status;
 
--- Step 6: Rename new type to original name
+-- Step 8: Rename new type to original name
 ALTER TYPE interview_status_new RENAME TO interview_status;
