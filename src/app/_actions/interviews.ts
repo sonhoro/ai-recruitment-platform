@@ -51,6 +51,42 @@ export async function updateInterview(
   return { success: true };
 }
 
+export async function completeInterview(
+  interviewId: string,
+  feedback?: string,
+): Promise<UpdateInterviewResult> {
+  if (!interviewId || typeof interviewId !== 'string') {
+    return { success: false, error: 'interviewId es requerido.' };
+  }
+
+  const supabase = await createServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { success: false, error: 'No autorizado.' };
+  }
+
+  const admin = createAdminClient();
+
+  const updateData: Record<string, string> = {
+    status: 'completed',
+    feedback_submitted_at: new Date().toISOString(),
+  };
+  if (feedback) updateData.feedback = feedback;
+
+  const { error } = await admin
+    .from('interviews')
+    .update(updateData)
+    .eq('id', interviewId);
+
+  if (error) {
+    console.error('[interviews] complete failed:', error);
+    return { success: false, error: 'Error al completar la entrevista.' };
+  }
+
+  revalidatePath('/dashboard/interviews');
+  return { success: true };
+}
+
 export async function getRecruiters(): Promise<{ id: string; full_name: string }[]> {
   const supabase = await createServerClient();
   const { data } = await supabase

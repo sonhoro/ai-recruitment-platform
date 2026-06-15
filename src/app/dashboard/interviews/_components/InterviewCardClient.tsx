@@ -9,7 +9,7 @@ import {
   SaveIcon,
   XIcon,
 } from 'lucide-react';
-import { updateInterview, getRecruiters } from '@/app/_actions/interviews';
+import { updateInterview, getRecruiters, completeInterview } from '@/app/_actions/interviews';
 
 // ─── Shared type ──────────────────────────────────────────────────────────────
 
@@ -127,6 +127,8 @@ export default function InterviewCardClient({
   const [interviewerName, setInterviewerName] = useState(interview.interviewer);
   const [recruiters, setRecruiters] = useState<{ id: string; full_name: string }[]>([]);
   const [selectedRecruiterId, setSelectedRecruiterId] = useState(interview.recruiter_id ?? '');
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [completeComment, setCompleteComment] = useState('');
   const [isPending, startTransition] = useTransition();
 
   const typeCfg = TYPE_CONFIG[interview.interview_type] ?? TYPE_CONFIG.technical;
@@ -293,7 +295,8 @@ export default function InterviewCardClient({
             )}
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors"
+              onClick={() => setShowCompleteModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-700 hover:border-emerald-600 text-emerald-400 hover:text-emerald-200 text-xs font-medium transition-colors"
             >
               <CheckCircleIcon className="h-3.5 w-3.5" />
               Marcar Completada
@@ -301,6 +304,67 @@ export default function InterviewCardClient({
           </>
         )}
       </div>
+
+      {/* ── Complete modal ── */}
+      {showCompleteModal && (
+        <>
+          <div className="fixed inset-0 z-40 bg-black/60" onClick={() => setShowCompleteModal(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-2xl">
+              <h3 className="text-base font-bold text-white mb-1">
+                Completar entrevista
+              </h3>
+              <p className="text-xs text-slate-400 mb-4">
+                {interview.candidate_name} — {interview.job_title}
+              </p>
+
+              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                Comentario (opcional)
+              </label>
+              <textarea
+                value={completeComment}
+                onChange={(e) => setCompleteComment(e.target.value)}
+                rows={4}
+                placeholder="Resultado de la entrevista, observaciones..."
+                className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 resize-none"
+                disabled={isPending}
+              />
+
+              <div className="flex items-center justify-end gap-2 mt-5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowCompleteModal(false);
+                    setCompleteComment('');
+                  }}
+                  disabled={isPending}
+                  className="px-4 py-2 rounded-lg border border-slate-700 hover:border-slate-600 text-slate-400 hover:text-slate-200 text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    startTransition(async () => {
+                      await completeInterview(
+                        interview.id,
+                        completeComment.trim() || undefined,
+                      );
+                      setShowCompleteModal(false);
+                      setCompleteComment('');
+                    });
+                  }}
+                  disabled={isPending}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  <CheckCircleIcon className="h-3.5 w-3.5" />
+                  {isPending ? 'Completando...' : 'Confirmar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
